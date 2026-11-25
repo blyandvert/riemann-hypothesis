@@ -55,7 +55,7 @@ namespace KStar.Schema
 
 open Matrix
 
-variable {n : Type*} [Fintype n] [DecidableEq n] {G : Type*} [Group G]
+variable {n : Type*} [Fintype n] [DecidableEq n] {G : Type*} [Monoid G]
 
 theorem span_eq_top_of_irreducible {K : Type*} [Field K] [IsAlgClosed K] (ρ : G →* Matrix n n K)
     (hirr : ∀ N : Submodule K (n → K), (∀ g, ∀ v ∈ N, ρ g *ᵥ v ∈ N) → N = ⊥ ∨ N = ⊤) :
