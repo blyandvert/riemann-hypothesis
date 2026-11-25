@@ -15,7 +15,7 @@ namespace LevelStatements.Link
 
 open PowerSeries
 
-theorem pow_val_mem_primitiveRoots {LL : Type} [Field LL] (N : ℕ) (hN : 0 < N) (w : ZMod N)
+theorem pow_val_mem_primitiveRoots {LL : Type*} [Field LL] (N : ℕ) (hN : 0 < N) (w : ZMod N)
     (hw : IsUnit w) {ξ : LL} (hξ : ξ ∈ primitiveRoots N LL) : ξ ^ w.val ∈ primitiveRoots N LL := by
   obtain ⟨u, rfl⟩ := hw
   rw [mem_primitiveRoots hN] at hξ ⊢
@@ -44,9 +44,7 @@ theorem eq_of_pow_pred_eq_one {l : ℕ} [Fact l.Prime] (s : ℕ) (a b : ZMod (l 
     apply Nat.Coprime.pow_right
     rw [Nat.coprime_comm, Nat.Prime.coprime_iff_not_dvd hp]
     exact Nat.not_dvd_of_pos_of_lt (by omega) (by omega)
-  have hinv : a * a ^ (l - 1 - 1) = 1 := by
-    rw [← pow_succ', show l - 1 - 1 + 1 = l - 1 by omega, ha]
-  have ha' : IsUnit a := ⟨⟨a, a ^ (l - 1 - 1), hinv, by rw [mul_comm]; exact hinv⟩, rfl⟩
+  have ha' : IsUnit a := IsUnit.of_pow_eq_one ha (by omega)
   have hU : IsUnit (((l - 1 : ℕ) : ZMod (l ^ (s + 1))) * a ^ (l - 1 - 1) + k * x) :=
     hkx.isUnit_add_left_of_commute (hl1.mul (ha'.pow _)) (Commute.all _ _)
   have hx0 : x * (((l - 1 : ℕ) : ZMod (l ^ (s + 1))) * a ^ (l - 1 - 1) + k * x) = 0 := by
@@ -97,10 +95,8 @@ theorem map_cyclotomic_comp {O LL : Type} [CommRing O] [Field LL] [CharZero LL] 
       Polynomial.aeval (C ζ * exp LL) (Polynomial.cyclotomic m LL) := by
   have key : ∀ p : Polynomial O, ρ (p : PowerSeries O) = Polynomial.aeval (ρ X) p := by
     intro p
-    have h := Polynomial.algHom_ext (f := ρ.comp (Polynomial.coeToPowerSeries.algHom O))
-      (g := Polynomial.aeval (ρ X)) (by simp)
-    have hp := AlgHom.congr_fun h p
-    simpa using hp
+    rw [← Polynomial.eval₂_C_X_eq_coe, Polynomial.aeval_algHom_apply]
+    rfl
   rw [key, Polynomial.aeval_comp]
   have h1 : Polynomial.aeval (ρ X) (Polynomial.X + 1 : Polynomial O) = C ζ * exp LL := by
     rw [map_add (f := _), Polynomial.aeval_X, map_one, add_comm, hρ]

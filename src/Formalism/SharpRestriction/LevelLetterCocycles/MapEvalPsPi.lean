@@ -79,10 +79,8 @@ theorem factV (hl2 : l ≠ 2) (u : ℤ_[l]) (hu : (u - 1).valuation = 1) (m : �
     rintro rfl
     exact hm' (dvd_zero l)
   have hval : padicValNat l (l ^ e * m') = e := by
-    rw [(show ∀ {p a b : ℕ} [_root_.Fact (_root_.Nat.Prime p)], a ≠ 0 → b ≠ 0 → _root_.padicValNat p (a * b) = _root_.padicValNat p a + _root_.padicValNat p b from by simpa only [← _root_.Nat.padicValNat_def] using @_root_.Nat.multiplicity_mul) (pow_ne_zero _ hl.ne_zero) hm'0, (show padicValNat l (l ^ e) = e from by
-        simpa only [← Nat.padicValNat_def] using (Nat.multiplicity_prime_pow e)),
-      (show padicValNat l m' = 0 from by
-        simpa only [← Nat.padicValNat_def] using (multiplicity_eq_zero_of_not_dvd hm')), add_zero]
+    rw [Nat.padicValNat_def, Nat.multiplicity_mul (pow_ne_zero _ hl.ne_zero) hm'0,
+      Nat.multiplicity_prime_pow, multiplicity_eq_zero_of_not_dvd hm', add_zero]
   rw [hval]
   have hE1 : emultiplicity (l : ℤ_[l]) (u ^ (l ^ e) - 1) =
       emultiplicity (l : ℤ_[l]) (u - 1) + e := by
@@ -122,8 +120,7 @@ theorem orderOf_u (hl2 : l ≠ 2) (u : ℤ_[l]) (hu : (u - 1).valuation = 1) (s 
   have key : ∀ j : ℕ, (PadicInt.toZModPow (s + 1) u) ^ (l ^ j) = 1 ↔ s ≤ j := by
     intro j
     have hv := factV hl2 u hu (l ^ j) (pow_ne_zero _ hl.ne_zero)
-    rw [(show padicValNat l (l ^ j) = j from by
-      simpa only [← Nat.padicValNat_def] using (Nat.multiplicity_prime_pow j))] at hv
+    rw [Nat.padicValNat_def, Nat.multiplicity_prime_pow] at hv
     have hne : u ^ (l ^ j) - 1 ≠ 0 := by
       intro h
       rw [h, PadicInt.valuation_zero] at hv
@@ -145,33 +142,22 @@ variable {LL : Type*} [Field LL] [CharZero LL]
 
 theorem isPrimitiveRoot_pow_eq_pow_iff_zmod_eq {N : ℕ} [NeZero N] {ξ : LL} (hξ : IsPrimitiveRoot ξ N) (a b : ℕ) :
     ξ ^ a = ξ ^ b ↔ (a : ZMod N) = b := by
-  have hN : 0 < N := Nat.pos_of_ne_zero (NeZero.ne N)
-  have hmod : ∀ c : ℕ, ξ ^ c = ξ ^ (c % N) := fun c => by
-    conv_lhs => rw [← Nat.div_add_mod c N, pow_add, pow_mul, hξ.pow_eq_one, one_pow, one_mul]
-  have hz : (a : ZMod N) = b ↔ a % N = b % N := by
-    first
-    | exact ZMod.natCast_eq_natCast_iff' a b N
-  rw [hz, hmod a, hmod b]
-  exact ⟨fun h => hξ.pow_inj (Nat.mod_lt _ hN) (Nat.mod_lt _ hN) h, fun h => by rw [h]⟩
-
-private theorem mem_primitiveRoots_iff_isPrimitiveRoot {k : ℕ} (h0 : 0 < k) {ζ : LL} :
-    ζ ∈ primitiveRoots k LL ↔ IsPrimitiveRoot ζ k := by
-  first
-  | exact mem_primitiveRoots h0
+  have hfin : IsOfFinOrder ξ :=
+    isOfFinOrder_iff_pow_eq_one.2 ⟨N, Nat.pos_of_ne_zero (NeZero.ne N), hξ.pow_eq_one⟩
+  rw [ZMod.natCast_eq_natCast_iff, hfin.pow_eq_pow_iff_modEq, ← hξ.eq_orderOf]
 
 theorem pow_mem_Rs (s : ℕ) (a : (ZMod (l ^ (s + 1)))ˣ) {ξ : LL}
     (hξ : ξ ∈ primitiveRoots (l ^ (s + 1)) LL) :
-    ξ ^ (a : ZMod (l ^ (s + 1))).val ∈ primitiveRoots (l ^ (s + 1)) LL := by
-  have h0 : 0 < l ^ (s + 1) := pow_pos (Fact.out : l.Prime).pos _
-  rw [mem_primitiveRoots_iff_isPrimitiveRoot h0] at hξ ⊢
-  exact hξ.pow_of_coprime _ (ZMod.val_coe_unit_coprime a)
+    ξ ^ (a : ZMod (l ^ (s + 1))).val ∈ primitiveRoots (l ^ (s + 1)) LL :=
+  LevelStatements.Link.pow_val_mem_primitiveRoots _ (pow_pos (Fact.out : l.Prime).pos _) _
+    a.isUnit hξ
 
 theorem Rs_transitive (s : ℕ) {ξ η : LL} (hξ : ξ ∈ primitiveRoots (l ^ (s + 1)) LL)
     (hη : η ∈ primitiveRoots (l ^ (s + 1)) LL) :
     ∃! a : (ZMod (l ^ (s + 1)))ˣ, ξ ^ (a : ZMod (l ^ (s + 1))).val = η := by
   haveI : NeZero (l ^ (s + 1)) := ⟨pow_ne_zero _ (Fact.out : l.Prime).ne_zero⟩
   have h0 : 0 < l ^ (s + 1) := pow_pos (Fact.out : l.Prime).pos _
-  rw [mem_primitiveRoots_iff_isPrimitiveRoot h0] at hξ hη
+  rw [mem_primitiveRoots h0] at hξ hη
   obtain ⟨i, -, hi⟩ : ∃ i < l ^ (s + 1), ξ ^ i = η := by
     first
     | exact hξ.eq_pow_of_pow_eq_one hη.pow_eq_one
@@ -210,7 +196,7 @@ theorem invariants_const (hl2 : l ≠ 2) (s : ℕ) (u : ℤ_[l]) (hu : (u - 1).v
       ∀ ξ ∈ primitiveRoots (l ^ (s + 1)) LL,
         f (ξ ^ ((a * b : (ZMod (l ^ (s + 1)))ˣ) : ZMod (l ^ (s + 1))).val) = f ξ := by
     intro a b ha hb ξ hξ
-    have hξ' := (mem_primitiveRoots_iff_isPrimitiveRoot h0).1 hξ
+    have hξ' := (mem_primitiveRoots h0).1 hξ
     rw [Units.val_mul, isPrimitiveRoot_pow_val_mul_eq_pow_pow hξ',
       hb _ (pow_mem_Rs s a hξ), ha ξ hξ]
   have hord := orderOf_u hl2 u hu s
@@ -319,7 +305,7 @@ theorem sigma_u_order (hl2 : l ≠ 2) (s : ℕ) (u : ℤ_[l]) (hu : (u - 1).valu
   have hl := (Fact.out : l.Prime)
   haveI : NeZero (l ^ (s + 1)) := ⟨pow_ne_zero _ hl.ne_zero⟩
   have h0 : 0 < l ^ (s + 1) := pow_pos hl.pos _
-  rw [mem_primitiveRoots_iff_isPrimitiveRoot h0] at hξ
+  rw [mem_primitiveRoots h0] at hξ
   have h := isPrimitiveRoot_pow_eq_pow_iff_zmod_eq hξ ((PadicInt.toZModPow (s + 1) u).val ^ k) 1
   rw [pow_one] at h
   rw [h, Nat.cast_pow, ZMod.natCast_zmod_val, Nat.cast_one, ← orderOf_dvd_iff_pow_eq_one,
