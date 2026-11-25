@@ -1,7 +1,7 @@
 module
 
 public import Formalism.PeriodIntegrals.UnitaryGroupMassFormula.StabilizerVolume.LocDensFF
-public import Formalism.PeriodIntegrals.UnitaryGroupMassFormula.StabilizerOrbitVolume.LocDensFFHS
+public import Formalism.PeriodIntegrals.UnitaryGroupMassFormula.StabilizerVolume.LocDensFFHS
 import Mathlib.Tactic.Linter.HaveILetI
 import Mathlib.Tactic.Linter.Style
 import Std.Tactic.BVDecide.Normalize.Prop
@@ -15,6 +15,8 @@ public import Mathlib.FieldTheory.Minpoly.Finite
 noncomputable section
 
 namespace PI.VolStabSW.FFHS
+
+open PI.VolStabS.FFHS
 open PI.VolStabS (ffH)
 
 open Module Polynomial
