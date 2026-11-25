@@ -576,34 +576,6 @@ private theorem normV_rat' {p : ℕ} (hp : p.Prime) (w : HeightOneSpectrum (𝓞
   refine ((Nat.dvd_prime hp).1 hd).resolve_left ?_
   rw [Ideal.absNorm_eq_one_iff]
   exact w.isPrime.ne_top
-private theorem scale_charpoly' {k : Type} [Field k] (φ : k →+* ℂ) (M : Matrix (Fin 2) (Fin 2) k) (c : k) (hc : c ≠ 0)
-    (B : Multiset ℂ) (h : (c • M).charpoly.map φ = (B.map fun b => X - C (φ c * b)).prod) :
-    M.charpoly.map φ = (B.map fun b => X - C b).prod := by
-  have hc' : φ c ≠ 0 := by simpa using hc
-  have hcard : B.card = 2 := by
-    have h1 := congrArg natDegree h
-    rw [natDegree_map, Matrix.charpoly_natDegree_eq_dim] at h1
-    have h2 := natDegree_multiset_prod_X_sub_C_eq_card (B.map (φ c * ·))
-    rw [Multiset.map_map] at h2
-    simp only [Function.comp_def, Multiset.card_map] at h2
-    rw [h2] at h1
-    simpa using h1.symm
-  obtain ⟨x, y, rfl⟩ := Multiset.card_eq_two.1 hcard
-  rw [Matrix.charpoly_fin_two] at h ⊢
-  simp only [Multiset.insert_eq_cons, Multiset.map_cons, Multiset.map_singleton, Multiset.prod_cons,
-    Multiset.prod_singleton, Polynomial.map_add, Polynomial.map_sub, Polynomial.map_mul, Polynomial.map_pow, map_X,
-    map_C, Matrix.trace_smul, Matrix.det_smul, smul_eq_mul, map_mul, map_pow, Fintype.card_fin] at h ⊢
-  have e0 := congrArg (eval 0) h
-  have e1 := congrArg (eval 1) h
-  simp only [eval_add, eval_sub, eval_mul, eval_pow, eval_X, eval_C] at e0 e1
-  have hd : φ M.det = x * y := by
-    apply mul_left_cancel₀ (pow_ne_zero 2 hc')
-    linear_combination e0
-  have ht : φ M.trace = x + y := by
-    apply mul_left_cancel₀ hc'
-    linear_combination e0 - e1
-  rw [hd, ht, C_add, C_mul]
-  ring
 theorem exists_cuspidal_satake_prod_eq_hecke_poly_of_not_dvd_level : _root_.UpperTheory.V.Af.Hypotheses' → ∀ (e : ℕ) (g : Newform (2 * e + 1)) (l : ℕ) [Fact l.Prime] (Ω : Type) [Field Ω] [Algebra ℚ Ω]
     [IsAlgClosure ℚ Ω] (ι : Qbar l ≃+* ℂ) (V : G ℚ Ω →* GL (Fin 2) (Qbar l)), 1 ≤ e →
     g.Att ι (tw V (cycBar ℚ Ω l ^ (-(e : ℤ)))) → ¬ l ∣ g.M →
@@ -644,7 +616,7 @@ theorem exists_cuspidal_satake_prod_eq_hecke_poly_of_not_dvd_level : _root_.Uppe
       rwa [tw_val, h3, Units.val_one, one_smul] at h4
     · have h1 := (hw A hA).2 σ hσ
       rw [tw_val, ← hpoly] at h1
-      refine scale_charpoly' ι.toRingHom _ _ (Units.ne_zero ((cycBar ℚ Ω l ^ (-(e : ℤ))) σ⁻¹)) _ ?_
+      refine GlobalTheory.Ord2.SrcForm.scale_charpoly ι.toRingHom _ _ (Units.ne_zero ((cycBar ℚ Ω l ^ (-(e : ℤ))) σ⁻¹)) _ ?_
       rw [h1]
       have h2 : ((cycBar ℚ Ω l σ : (Qbar l)ˣ) : Qbar l) = (normV w : ℕ) := by
         change algebraMap ℚ_[l] (Qbar l) (PadicInt.Coe.ringHom ((cycZ ℚ Ω l σ : ℤ_[l]ˣ) : ℤ_[l])) = _
