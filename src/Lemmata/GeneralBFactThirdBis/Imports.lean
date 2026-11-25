@@ -15,24 +15,14 @@ theorem isIntegral_of_preserves_span {R S ι : Type*} [CommRing R] [CommRing S]
     [Algebra R S] [Fintype ι] [DecidableEq ι] (L : Submodule R (ι → S))
     (hL : L.FG) (hspan : Submodule.span S (L : Set (ι → S)) = ⊤)
     (M : Matrix ι ι S) (hM : ∀ x ∈ L, M.mulVec x ∈ L) : IsIntegral R M := by
-  classical
-  have : Module.Finite R L := Module.Finite.iff_fg.mpr hL
-  let f : Module.End R L :=
-    ((Matrix.mulVecLin M).restrictScalars R).restrict fun x hx => hM x hx
-  obtain ⟨p, hpm, hp0⟩ := LinearMap.exists_monic_and_aeval_eq_zero R f
-  have hpow (k : ℕ) (x : L) : ((f ^ k) x : ι → S) = (M ^ k).mulVec (x : ι → S) := by
-    induction k generalizing x with
-    | zero => simp
-    | succ k ih => rw [pow_succ, mul_apply_eq_comp, ih, pow_succ, ← Matrix.mulVec_mulVec]; rfl
-  refine ⟨p, hpm, ?_⟩
-  show Polynomial.aeval M p = 0
-  have hlin : Matrix.mulVecLin (Polynomial.aeval M p) = 0 := LinearMap.ext_on hspan fun x hx => by
-    have h := congrArg (fun h : Module.End R L => (h ⟨x, hx⟩ : ι → S)) hp0
-    simp only [Polynomial.aeval_eq_sum_range, LinearMap.sum_apply, LinearMap.smul_apply,
-      Submodule.coe_sum, Submodule.coe_smul, hpow, LinearMap.zero_apply, Submodule.coe_zero] at h
-    rw [LinearMap.zero_apply, Matrix.mulVecLin_apply, Polynomial.aeval_eq_sum_range, Matrix.sum_mulVec]
-    simpa only [Matrix.smul_mulVec] using h
-  ext i j
-  simpa [Matrix.mulVec_single_one] using congrFun (LinearMap.congr_fun hlin (Pi.single j 1)) i
+  let : Module.Finite R L := Module.Finite.iff_fg.mpr hL
+  let f := M.toLin'.restrictScalars R
+  obtain ⟨p, hp, h⟩ := LinearMap.exists_monic_and_aeval_eq_zero R (f.restrict hM)
+  refine ⟨p, hp, Matrix.toLin'.map_eq_zero_iff.mp (LinearMap.ext_on hspan fun x hx => ?_)⟩
+  change (Polynomial.aeval M p).mulVec x = 0
+  simp only [Polynomial.aeval_eq_sum_range, Matrix.sum_mulVec, Matrix.smul_mulVec]
+  simpa [Polynomial.aeval_eq_sum_range, Module.End.pow_restrict (f' := f) _ hM, f,
+    LinearMap.coe_restrict_apply, ← Matrix.toLin'_apply, pow_apply_eq_iterate]
+    using congrArg (fun g : Module.End R L => (g ⟨x, hx⟩ : ι → S)) h
 
 end Bl.general_b_fact_third_bis
