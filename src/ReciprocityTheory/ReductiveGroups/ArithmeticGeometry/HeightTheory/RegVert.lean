@@ -16,24 +16,11 @@ theorem regVert_eq_of_le_height_one {A : Type*} [CommRing A] [IsDomain A] {Q P :
     [P.IsPrime] (hQ : Q ≠ ⊥) (hQP : Q ≤ P) (hP : P.height = 1) : Q = P := by
   by_contra hne
   have hlt : Q < P := lt_of_le_of_ne hQP hne
-  have hbot : (⊥ : Ideal A) < Q := bot_lt_iff_ne_bot.mpr hQ
-  have hQle : Q.height ≤ 1 := hP ▸ Ideal.height_mono hQP
-  have hQfin : Q.height ≠ ⊤ := ne_top_of_le_ne_top (by simp) hQle
-  haveI : Q.FiniteHeight := ⟨Or.inr hQfin⟩
-  haveI : (⊥ : Ideal A).FiniteHeight := ⟨Or.inr (by simp)⟩
-  have h1 : (⊥ : Ideal A).height + 1 ≤ Q.height := by
-    first
-    | exact Order.add_one_le_of_lt (Ideal.height_strict_mono_of_isPrime hbot)
-  have h2 : Q.height + 1 ≤ P.height := by
-    first
-    | exact Order.add_one_le_of_lt (Ideal.height_strict_mono_of_isPrime hlt)
-  rw [hP] at h2
-  have h3 : (2 : ℕ∞) ≤ 1 := by
-    calc (2 : ℕ∞) = 0 + 1 + 1 := by norm_num
-      _ ≤ (⊥ : Ideal A).height + 1 + 1 := by gcongr; simp
-      _ ≤ Q.height + 1 := by gcongr
-      _ ≤ 1 := h2
-  exact absurd h3 (by norm_num)
+  have hP1 : P.height ≤ ((1 : ℕ) : ℕ∞) := by rw [hP]; rfl
+  have h1 : Q.height < ((1 : ℕ) : ℕ∞) := (Ideal.height_le_iff.mp hP1) Q inferInstance hlt
+  have h2 : Q.height = 0 := ENat.lt_one_iff_eq_zero.mp (by exact_mod_cast h1)
+  have hmin := Ideal.height_eq_zero_iff.mp h2
+  exact hQ (le_bot_iff.mp (hmin.2 ⟨Ideal.isPrime_bot, le_refl _⟩ bot_le))
 
 theorem regVert_valuationRing {A : Type*} [CommRing A] [IsDomain A] [IsNoetherianRing A]
     [IsIntegrallyClosed A] (P : Ideal A) [P.IsPrime] (hP : P.height = 1) :
