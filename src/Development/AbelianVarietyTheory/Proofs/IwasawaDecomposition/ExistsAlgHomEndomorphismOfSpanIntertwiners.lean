@@ -3,7 +3,8 @@ module
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Order.CompletePartialOrder
 public import Mathlib.RepresentationTheory.Irreducible
-public import Development.AbelianVarietyTheory.Proofs.AdelicLatticeProofs.SpanRangeEqTopOfIsIrreducible
+import Mathlib.Analysis.Complex.Polynomial.Basic
+public import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.SpanEqTopOfIrreducibleOverAlgClosed
 import Development.AbelianVarietyTheory.Definitions.AutomorphicMembership.ContinuousMapPFin
 import Development.AbelianVarietyTheory.Definitions.Foundations.SmoothPartStable
 import Development.AbelianVarietyTheory.PublishedTheorems.GaloisCohomology₂.BaseChangeDefiniteUnitary
@@ -27,7 +28,7 @@ theorem exists_algHom_end_of_span_intertwiners :
   classical
 
   have hsurj : Function.Surjective σ.asAlgebraHom := by
-    have hB := GlobalTheory.ClassFin.span_range_eq_top_of_isIrreducible H W σ hirr
+    have hB := GlobalTheory.BurnsideMonoid.span_range_eq_top_of_isIrreducible σ hirr
     have hle : Submodule.span ℂ (Set.range σ) ≤ Subalgebra.toSubmodule σ.asAlgebraHom.range := by
       rw [Submodule.span_le]
       rintro _ ⟨h, rfl⟩

@@ -1,7 +1,9 @@
 module
 
 public import Formalism.LocalToGlobal.Divisibility.CoefMod
-public import Development.AbelianVarietyTheory.Proofs.AdelicLatticeProofs.SpanRangeEqTopOfIsIrreducible
+public import Mathlib.Basic.Complex.Basic
+import Mathlib.Analysis.Complex.Polynomial.Basic
+public import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.SpanEqTopOfIrreducibleOverAlgClosed
 public import Development.AbelianVarietyTheory.Proofs.FoundationProofs.IsIrreducibleSmallRepUnitary
 import Formalism.GradedWeylDivisibility.FinalD
 public import Formalism.LocalToGlobal.Divisibility.CoefModLemmas
@@ -93,7 +95,7 @@ theorem vv_irreducible_unitary :
   refine eq_bot_or_top_of_tensor (G := fun _ => Matrix.unitaryGroup (Fin n) ℂ)
     (fun τ => ssBasis ℂ (lam τ)) (tenMul lam) (bVV ℂ lam) (fun i => ?_)
     (fun τ => smallRep (unitaryIncl n) (lam τ))
-    (fun τ => GlobalTheory.ClassFin.span_range_eq_top_of_isIrreducible _ _ _ (isIrreducible_smallRep_unitary n (lam τ)))
+    (fun τ => GlobalTheory.BurnsideMonoid.span_range_eq_top_of_isIrreducible _ (isIrreducible_smallRep_unitary n (lam τ)))
     U fun g => ⟨rhoK lam fun τ => unitaryIncl n (g τ), fun f => ?_, hU _ fun τ => (g τ).2⟩
   · apply Subtype.ext
     rw [bVV_coe, tenMul_coe, bVVfun]

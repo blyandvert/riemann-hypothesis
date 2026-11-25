@@ -1,7 +1,9 @@
 module
 
 public import Development.AbelianVarietyTheory.PublishedTheorems.GaloisCohomology₂.BaseChangeDefiniteUnitary
-public import Development.AbelianVarietyTheory.Proofs.AdelicLatticeProofs.SpanRangeEqTopOfIsIrreducible
+public import Mathlib.Basic.Complex.Basic
+import Mathlib.Analysis.Complex.Polynomial.Basic
+public import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.SpanEqTopOfIrreducibleOverAlgClosed
 public import Development.AbelianVarietyTheory.Proofs.DivisorProofs.IrreducibleAdmissibleDecomposableCompEquiv
 public import Development.AbelianVarietyTheory.Proofs.FoundationProofs.IsIrreducibleSmallRepUnitary
 public import Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.ArchimedeanUnitaryPointsEquivUnitaryGroup
@@ -218,7 +220,7 @@ private theorem irr_tensRep {I : Type} [Fintype I] {emb : I → (E →+* ℂ)} (
     (hb : Function.Bijective (fun i => InfinitePlace.mk (emb i))) [Nontrivial (⨂[ℂ] i, nablaSq ℂ n (lam i))] :
     (tensRep emb lam).IsIrreducible := by
   refine isIrreducible_of_factors _ (fun i => Set.range (atEmb (emb i) (lam i)))
-    (fun i => GlobalTheory.ClassFin.span_range_eq_top_of_isIrreducible _ _ _ (irr_atEmb _ _)) ?_
+    (fun i => GlobalTheory.BurnsideMonoid.span_range_eq_top_of_isIrreducible _ (irr_atEmb _ _)) ?_
   rintro i _ ⟨g, rfl⟩
   refine ⟨g.1, ?_⟩
   exact congrArg PiTensorProduct.map (comps_eq_update lam hb (i := i) (y := g.1.1) g.2)

@@ -2,7 +2,8 @@ module
 
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.RepresentationTheory.Irreducible
-public import Development.AbelianVarietyTheory.Proofs.AdelicLatticeProofs.SpanRangeEqTopOfIsIrreducible
+import Mathlib.Analysis.Complex.Polynomial.Basic
+public import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.SpanEqTopOfIrreducibleOverAlgClosed
 import Mathlib.Algebra.Module.StablyFree.Basic
 import Mathlib.Algebra.Order.Floor.Extended
 import Mathlib.Algebra.Order.Floor.Semifield
@@ -63,8 +64,8 @@ theorem isIrreducible_outer_tprod :
   intro G H V W _ _ _ _ _ _ _ _ ρ σ hρ hσ
   have hV := nontrivial_of_isIrreducible ρ hρ
   have hW := nontrivial_of_isIrreducible σ hσ
-  have sρ := GlobalTheory.ClassFin.span_range_eq_top_of_isIrreducible G V ρ hρ
-  have sσ := GlobalTheory.ClassFin.span_range_eq_top_of_isIrreducible H W σ hσ
+  have sρ := GlobalTheory.BurnsideMonoid.span_range_eq_top_of_isIrreducible ρ hρ
+  have sσ := GlobalTheory.BurnsideMonoid.span_range_eq_top_of_isIrreducible σ hσ
   have hVW : Nontrivial (V ⊗[ℂ] W) := by
     apply Module.nontrivial_of_finrank_pos (R := ℂ)
     rw [Module.finrank_tensorProduct]

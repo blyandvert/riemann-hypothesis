@@ -1,7 +1,9 @@
 module
 
 public import Development.AbelianVarietyTheory.Definitions.AutomorphicMembership.ContinuousMapPFin
-public import Development.AbelianVarietyTheory.Proofs.AdelicLatticeProofs.SpanRangeEqTopOfIsIrreducible
+public import Mathlib.Basic.Complex.Basic
+import Mathlib.Analysis.Complex.Polynomial.Basic
+public import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.SpanEqTopOfIrreducibleOverAlgClosed
 public import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.NonemptyEquivLocProdTriv
 public import Development.AbelianVarietyTheory.PublishedTheorems.GaloisCohomology₂.BaseChangeDefiniteUnitary
 public import Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.ArchimedeanUnitaryPointsEquivUnitaryGroup
@@ -162,7 +164,7 @@ theorem exists_cAll (g : InfinitePlace E → GL (Fin n) ℂ)
   exact ⟨y, hy⟩
 
 theorem span_rep (W : Wt E n) [Nontrivial W.Sp] : Submodule.span ℂ (Set.range W.rep) = ⊤ :=
-  GlobalTheory.ClassFin.span_range_eq_top_of_isIrreducible _ _ W.rep ((CuspRep.isIrreducible_iff _).2 ⟨inferInstance, fun U hU =>
+  GlobalTheory.BurnsideMonoid.span_range_eq_top_of_isIrreducible W.rep ((CuspRep.isIrreducible_iff _).2 ⟨inferInstance, fun U hU =>
     GlobalTheory.CoefIrred.vv_irreducible_unitary (InfinitePlace E) n W U fun g hg x hx => by
       obtain ⟨y, rfl⟩ := exists_cAll g hg
       exact hU y x hx⟩)
