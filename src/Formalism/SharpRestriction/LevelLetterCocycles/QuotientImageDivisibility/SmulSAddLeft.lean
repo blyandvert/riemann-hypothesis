@@ -46,14 +46,10 @@ theorem LB_smul {m : ℤ} {f : ℤ → V} (hf : LB m f) (c : LL) : LB m (c • f
   intro k hk
   simp [hf k hk]
 
-private theorem exists_nat_gt_int_sub (k m : ℤ) : ∃ N : ℕ, k - m < N := by
-  first
-  | exact exists_nat_gt (k - m)
-
 theorem smulS_add {m : ℤ} {f f' : ℤ → V} (hf : LB m f) (hf' : LB m f') (g : PowerSeries LL) :
     smulS g (f + f') = smulS g f + smulS g f' := by
   funext k
-  obtain ⟨N, hN⟩ := exists_nat_gt_int_sub k m
+  obtain ⟨N, hN⟩ := exists_nat_gt (k - m)
   rw [Pi.add_apply, smulS_eq_sum (LB_add hf hf') g k N hN,
     smulS_eq_sum hf g k N hN, smulS_eq_sum hf' g k N hN, ← Finset.sum_add_distrib]
   refine Finset.sum_congr rfl fun j _ => ?_
@@ -62,7 +58,7 @@ theorem smulS_add {m : ℤ} {f f' : ℤ → V} (hf : LB m f) (hf' : LB m f') (g 
 theorem smulS_sub {m : ℤ} {f f' : ℤ → V} (hf : LB m f) (hf' : LB m f') (g : PowerSeries LL) :
     smulS g (f - f') = smulS g f - smulS g f' := by
   funext k
-  obtain ⟨N, hN⟩ := exists_nat_gt_int_sub k m
+  obtain ⟨N, hN⟩ := exists_nat_gt (k - m)
   rw [Pi.sub_apply, smulS_eq_sum (LB_sub hf hf') g k N hN,
     smulS_eq_sum hf g k N hN, smulS_eq_sum hf' g k N hN, ← Finset.sum_sub_distrib]
   refine Finset.sum_congr rfl fun j _ => ?_
@@ -71,7 +67,7 @@ theorem smulS_sub {m : ℤ} {f f' : ℤ → V} (hf : LB m f) (hf' : LB m f') (g 
 theorem smulS_smul {m : ℤ} {f : ℤ → V} (hf : LB m f) (g : PowerSeries LL) (c : LL) :
     smulS g (c • f) = c • smulS g f := by
   funext k
-  obtain ⟨N, hN⟩ := exists_nat_gt_int_sub k m
+  obtain ⟨N, hN⟩ := exists_nat_gt (k - m)
   rw [Pi.smul_apply, smulS_eq_sum (LB_smul hf c) g k N hN,
     smulS_eq_sum hf g k N hN, Finset.smul_sum]
   refine Finset.sum_congr rfl fun j _ => ?_
@@ -81,7 +77,7 @@ theorem smulS_smul {m : ℤ} {f : ℤ → V} (hf : LB m f) (g : PowerSeries LL) 
 private theorem smulS_C_eq_smul_of_LB {m : ℤ} {f : ℤ → V} (hf : LB m f) (c : LL) :
     smulS (PowerSeries.C c) f = c • f := by
   funext k
-  obtain ⟨N, hN⟩ := exists_nat_gt_int_sub k m
+  obtain ⟨N, hN⟩ := exists_nat_gt (k - m)
   rw [smulS_eq_sum hf _ k (N + 1) (by omega), Finset.sum_eq_single 0]
   · simp
   · intro j _ hj
@@ -98,7 +94,7 @@ alias smulS_C := _root_.Formalism.MainNotions.N.Pv.LocalLengthBound.Ser.smulS_C_
 theorem smulS_X_pow {m : ℤ} {f : ℤ → V} (hf : LB m f) (K : ℕ) :
     smulS ((PowerSeries.X : PowerSeries LL) ^ K) f = fun k => f (k - K) := by
   funext k
-  obtain ⟨N, hN⟩ := exists_nat_gt_int_sub k m
+  obtain ⟨N, hN⟩ := exists_nat_gt (k - m)
   rw [smulS_eq_sum hf _ k (N + K + 1) (by omega), Finset.sum_eq_single K]
   · simp [PowerSeries.coeff_X_pow]
   · intro j _ hj
@@ -122,7 +118,7 @@ def Dg (Fil : ℤ → Submodule LL V) (s : ℤ) (f : ℤ → V) : Prop := ∀ k,
 theorem Dg_smulS {Fil : ℤ → Submodule LL V} (hF : Antitone Fil) {m s : ℤ} {f : ℤ → V}
     (hf : LB m f) (hD : Dg Fil s f) (g : PowerSeries LL) : Dg Fil s (smulS g f) := by
   intro k
-  obtain ⟨N, hN⟩ := exists_nat_gt_int_sub k m
+  obtain ⟨N, hN⟩ := exists_nat_gt (k - m)
   rw [smulS_eq_sum hf g k N hN]
   refine sum_mem fun j _ => Submodule.smul_mem _ _ ?_
   exact hF (by omega : s - k ≤ s - (k - (j : ℤ))) (hD (k - j))
