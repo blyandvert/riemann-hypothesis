@@ -1,6 +1,7 @@
 module
 
 public import GroundTheory.HeightsAndTheta.Heights.DiscreteValuationNumbers.StatementsMaxHeight
+public import ReciprocityTheory.ReductiveGroups.ArithmeticGeometry.BirationalGeometry.InterDivSuppAC
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.RingTheory.Coalgebra.IsFrobenius
 import Mathlib.RingTheory.Henselian
@@ -24,27 +25,8 @@ open MvPolynomial
 universe u
 
 theorem height_eq_of_isMaximal_mvPolynomial_fin (F : Type u) [Field F] :
-    ∀ (n : ℕ) (M : Ideal (MvPolynomial (Fin n) F)), M.IsMaximal → M.height = n := by
-  intro n
-  induction n with
-  | zero =>
-    intro M hM
-    have h := Ideal.height_le_ringKrullDim_of_ne_top hM.ne_top
-    rw [MvPolynomial.ringKrullDim_of_isNoetherianRing, ringKrullDim_eq_zero_of_field] at h
-    simp at h
-    simpa [h]
-  | succ n ih =>
-    intro M hM
-    let e := (finSuccEquiv F n).toRingEquiv
-    rw [← e.height_map M]
-    set P : Ideal (Polynomial (MvPolynomial (Fin n) F)) := M.map e with hPdef
-    have hP : P.IsMaximal := Ideal.map_isMaximal_of_equiv e
-    have hc : (P.comap (Polynomial.C : MvPolynomial (Fin n) F →+* _)).IsMaximal :=
-      Polynomial.isMaximal_comap_C_of_isJacobsonRing P
-    have hlo : P.LiesOver (P.under (MvPolynomial (Fin n) F)) := ⟨rfl⟩
-    rw [Polynomial.height_eq_height_add_one (P.under (MvPolynomial (Fin n) F)) P,
-      ih (P.under (MvPolynomial (Fin n) F)) hc]
-    norm_cast
+    ∀ (n : ℕ) (M : Ideal (MvPolynomial (Fin n) F)), M.IsMaximal → M.height = n :=
+  ReciprocityTheory.ChartRestriction.G.Geo.DimF.height_mvPolynomial_fin_of_isMaximal
 
 theorem MaximalIdealHeightFG.proof : MaximalIdealHeightFG.Statement.{u} := by
   intro F _ A _ _ _ _ m hm
