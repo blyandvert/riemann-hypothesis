@@ -17,26 +17,14 @@ public import Mathlib.Algebra.Polynomial.Derivative
 public import Mathlib.Algebra.Polynomial.Monic
 public import Mathlib.RingTheory.Artinian.Defs
 public import Mathlib.RingTheory.Artinian.Module
+public import Formalism.SharedLemmas.PrecompleteFinite
 
 @[expose] public section
 
 open TensorProduct in
 private theorem precomplete_of_finite {R : Type} [CommRing R] (I : Ideal R) [IsPrecomplete I R]
-    (M : Type) [AddCommGroup M] [Module R M] [Module.Finite R M] : IsPrecomplete I M := by
-  rw [← AdicCompletion.of_surjective_iff]
-  intro y
-  obtain ⟨z, rfl⟩ := AdicCompletion.ofTensorProduct_surjective_of_finite I M y
-  induction z using TensorProduct.induction_on with
-  | zero => exact ⟨0, by simp⟩
-  | tmul r x =>
-    obtain ⟨c, rfl⟩ := AdicCompletion.of_surjective I R r
-    refine ⟨c • x, ?_⟩
-    rw [AdicCompletion.ofTensorProduct_tmul, map_smul]
-    exact (algebraMap_smul (AdicCompletion I R) c (AdicCompletion.of I M x)).symm
-  | add x y hx hy =>
-    obtain ⟨a, ha⟩ := hx
-    obtain ⟨b, hb⟩ := hy
-    exact ⟨a + b, by rw [map_add (f := _), map_add (f := _), ha, hb]⟩
+    (M : Type) [AddCommGroup M] [Module R M] [Module.Finite R M] : IsPrecomplete I M :=
+  Formalism.SharedLemmas.isPrecomplete_of_moduleFinite I
 
 open Polynomial in
 private theorem lift_idem {T : Type} [CommRing T] (I : Ideal T) [HenselianRing T I]
