@@ -40,28 +40,8 @@ theorem rk_filV_fd (U : Submodule LL (V ⊗[Qp] BdR)) [FiniteDimensional LL ↥U
     ∃ a : ℤ, U ≤ FilV PD (LL := LL) (V := V) a := by
   apply +allowSynthFailures _root_.Formalism.MainNotions.N.Ln34.UniversalFiltration.fr_filV_fd <;> assumption
 
-theorem rk_filV_sep (x : V ⊗[Qp] BdR) (hx : ∀ a, x ∈ FilV PD (LL := LL) (V := V) a) : x = 0 := by
-  classical
-  obtain ⟨e, he⟩ : ∃ e : V ⊗[Qp] BdR ≃ₗ[Qp] (Module.Free.ChooseBasisIndex Qp V →₀ BdR),
-      ∀ (v : V) (y : BdR) (i), e (v ⊗ₜ y) i = (Module.Free.chooseBasis Qp V).repr v i • y := by
-    first
-    | exact ⟨TensorProduct.equivFinsuppOfBasisLeft (Module.Free.chooseBasis Qp V), fun v y i =>
-        TensorProduct.equivFinsuppOfBasisLeft_apply_tmul_apply _ _ _ _⟩
-  have hmem : ∀ a, ∀ z ∈ FilV PD (LL := LL) (V := V) a, ∀ i, e z i ∈ PD.Fil a := by
-    intro a z hz i
-    obtain ⟨y, rfl⟩ := hz
-    induction y using TensorProduct.induction_on with
-    | zero => simp
-    | tmul v w =>
-      simp only [AlgebraTensorModule.map_tmul, LinearMap.id_apply, Submodule.subtype_apply, he]
-      exact Submodule.smul_of_tower_mem _ _ w.2
-    | add y z hy hz =>
-      simp only [map_add (f := _), Finsupp.add_apply]
-      exact Submodule.add_mem _ hy hz
-  have h0 : e x = 0 := by
-    ext i
-    exact PD.Fil_sep _ fun a => hmem a x (hx a) i
-  exact (LinearEquiv.map_eq_zero_iff e).1 h0
+theorem rk_filV_sep (x : V ⊗[Qp] BdR) (hx : ∀ a, x ∈ FilV PD (LL := LL) (V := V) a) : x = 0 :=
+  Ln34.UniversalFiltration.fr_filV_sep PD x hx
 
 variable (ρ : Representation LL G V)
 
@@ -74,32 +54,8 @@ theorem rk_fildR_lo (τ : K →ₐ[Qp] LL) [FiniteDimensional LL ↥(DdRE PD ρ 
   exact ⟨lo, fun a ha => inf_eq_left.2 (hlo.trans (rk_filV_anti PD ha))⟩
 
 theorem rk_fildR_hi (τ : K →ₐ[Qp] LL) [FiniteDimensional LL ↥(DdRE PD ρ τ)] :
-    ∃ hi : ℤ, ∀ a, hi ≤ a → FildR PD ρ τ a = ⊥ := by
-  classical
-  haveI hfd : ∀ a, FiniteDimensional LL ↥(FildR PD ρ τ a) := fun a =>
-    Submodule.finiteDimensional_of_le (inf_le_left : FildR PD ρ τ a ≤ DdRE PD ρ τ)
-  obtain ⟨a0, ha0⟩ : ∃ a0 : ℤ, ∀ a, finrank LL ↥(FildR PD ρ τ a0) ≤ finrank LL ↥(FildR PD ρ τ a) := by
-    have hS : (Set.range fun a : ℤ => finrank LL ↥(FildR PD ρ τ a)).Nonempty := ⟨_, 0, rfl⟩
-    obtain ⟨a0, ha0⟩ := Nat.sInf_mem hS
-    have ha0' : finrank LL ↥(FildR PD ρ τ a0) =
-        sInf (Set.range fun a : ℤ => finrank LL ↥(FildR PD ρ τ a)) := ha0
-    exact ⟨a0, fun a => by rw [ha0']; exact Nat.sInf_le ⟨a, rfl⟩⟩
-  have hle : ∀ a, a0 ≤ a → finrank LL ↥(FildR PD ρ τ a) ≤ finrank LL ↥(FildR PD ρ τ a0) := by
-    intro a ha
-    first
-    | exact Submodule.finrank_mono (rk_fildR_anti PD ρ τ ha)
-  have heq : ∀ a, a0 ≤ a → FildR PD ρ τ a = FildR PD ρ τ a0 := fun a ha =>
-    Submodule.eq_of_le_of_finrank_eq (rk_fildR_anti PD ρ τ ha) (le_antisymm (hle a ha) (ha0 a))
-  have hbot : FildR PD ρ τ a0 = ⊥ := by
-    rw [eq_bot_iff]
-    intro x hx
-    rw [Submodule.mem_bot]
-    refine rk_filV_sep PD (LL := LL) (V := V) x fun b => ?_
-    rcases le_total a0 b with hb | hb
-    · rw [← heq b hb] at hx
-      exact (Submodule.mem_inf.1 hx).2
-    · exact rk_filV_anti PD hb (Submodule.mem_inf.1 hx).2
-  exact ⟨a0, fun a ha => (heq a ha).trans hbot⟩
+    ∃ hi : ℤ, ∀ a, hi ≤ a → FildR PD ρ τ a = ⊥ :=
+  Ln34.UniversalFiltration.fr_fildR_hi PD ρ τ
 
 theorem rk_multV_of_not_jump (τ : K →ₐ[Qp] LL) (a : ℤ) (h : ¬ IsJumpV PD ρ τ a) :
     multV PD ρ τ a = 0 := by
