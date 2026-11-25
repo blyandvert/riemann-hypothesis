@@ -32,29 +32,16 @@ open PowerSeries IsLocalRing
 
 theorem rhoUnique : RhoUniqueStatement := by
   intro O S _ _ _ _ _ P hP ρ ρ' hX h0
-  have hpoly : ∀ r : Polynomial O, ρ (r : PowerSeries O) = ρ' (r : PowerSeries O) := by
-    intro r
-    rw [algHom_coe_eq_aeval, algHom_coe_eq_aeval, hX]
   have hdvd : X ∣ ρ (P : PowerSeries O) := by
     rw [PowerSeries.X_dvd_iff, algHom_coe_eq_aeval]
     exact h0
-  apply AlgHom.ext
-  intro a
-  ext n
-  have hne : PowerSeries.map (residue O) ((P ^ (n + 1) : Polynomial O) : PowerSeries O) ≠ 0 := by
-    rw [← Polynomial.polynomial_map_coe, Ne, Polynomial.coe_eq_zero_iff]
-    exact ((hP.monic.pow _).map _).ne_zero
-  obtain ⟨q, r, _, hqr⟩ := exists_isWeierstrassDivision a hne
-  rw [Polynomial.coe_pow] at hqr
-  have hd : ρ a - ρ' a = ρ (P : PowerSeries O) ^ (n + 1) * (ρ q - ρ' q) := by
-    rw [hqr, map_add (f := _), map_add (f := _), map_mul, map_mul, map_pow, map_pow, hpoly r, ← hpoly P]
-    ring
-  have hX' : X ^ (n + 1) ∣ ρ a - ρ' a := by
-    rw [hd]
-    exact Dvd.dvd.mul_right (pow_dvd_pow_of_dvd hdvd _) _
-  have h1 := (PowerSeries.X_pow_dvd_iff.mp hX') n (Nat.lt_succ_self n)
-  rw [map_sub, sub_eq_zero] at h1
-  exact h1
+  obtain ⟨u, hu⟩ := hdvd
+  ext a n
+  obtain ⟨q, r, _, rfl⟩ := exists_isWeierstrassDivision (g := (P : PowerSeries O) ^ (n + 1)) a (by
+    simp [← Polynomial.polynomial_map_coe, (hP.monic.map _).ne_zero])
+  have hpoly (r : Polynomial O) : ρ' (r : PowerSeries O) = ρ (r : PowerSeries O) := by
+    rw [algHom_coe_eq_aeval, algHom_coe_eq_aeval, hX]
+  simp [hpoly, hu, mul_pow, mul_assoc, PowerSeries.coeff_X_pow_mul']
 
 end LevelStatements.Lv
 end -- clump:auto
