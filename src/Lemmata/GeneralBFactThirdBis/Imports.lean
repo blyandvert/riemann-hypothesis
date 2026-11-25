@@ -35,27 +35,4 @@ theorem isIntegral_of_preserves_span {R S ι : Type*} [CommRing R] [CommRing S]
   ext i j
   simpa [Matrix.mulVec_single_one] using congrFun (LinearMap.congr_fun hlin (Pi.single j 1)) i
 
-/-- The trace of an integral matrix is integral after embedding its field in `ℂ`. -/
-theorem isIntegral_trace_of_isIntegral {E ι : Type*} [Field E] [Fintype ι]
-    [DecidableEq ι] (φ : E →+* ℂ) (M : Matrix ι ι E) (hM : IsIntegral ℤ M) :
-    IsIntegral ℤ M.trace := by
-  classical
-  obtain ⟨p, hpm, hz⟩ := hM
-  have hN : Polynomial.aeval (M.map φ) p = 0 := by
-    have h2 := congrArg (φ.mapMatrix (m := ι)) hz
-    rw [map_zero, Polynomial.hom_eval₂] at h2
-    rw [Polynomial.aeval_def]
-    convert h2 using 2 <;> first | exact RingHom.ext_int _ _ | rfl
-  have hint : IsIntegral ℤ (φ M.trace) := by
-    rw [AddMonoidHom.map_trace φ M, Matrix.trace_eq_sum_roots_charpoly]
-    refine IsIntegral.multiset_sum fun r hr => ⟨p, hpm, ?_⟩
-    have hsp := Matrix.mem_spectrum_of_isRoot_charpoly (Polynomial.mem_roots'.mp hr).2
-    have h1 := spectrum.subset_polynomial_aeval (M.map φ) (p.map (algebraMap ℤ ℂ)) ⟨r, hsp, rfl⟩
-    rw [Polynomial.aeval_map_algebraMap, hN] at h1
-    rcases subsingleton_or_nontrivial (Matrix ι ι ℂ) with _ | _
-    · exact absurd hsp (by rw [spectrum.mem_iff, not_not]; exact isUnit_of_subsingleton _)
-    · rw [spectrum.zero_eq, Set.mem_singleton_iff] at h1
-      simpa [Polynomial.eval_map, Polynomial.aeval_def] using h1
-  exact (isIntegral_algHom_iff φ.toIntAlgHom φ.injective).mp hint
-
 end Bl.general_b_fact_third_bis

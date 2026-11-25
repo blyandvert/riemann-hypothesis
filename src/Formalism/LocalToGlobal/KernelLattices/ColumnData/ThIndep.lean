@@ -1,5 +1,6 @@
 module
 
+import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.ExistsMonicAevalEqZero
 public import Formalism.LocalToGlobal.KernelLattices.ColumnData.HfArith
 public import Formalism.LocalToGlobal.KernelLattices.ColumnData.LinkThIndep
 public import Lemmata.GeneralBFactThirdBis.Imports
@@ -109,7 +110,7 @@ theorem sE_hom_gen {N N' : ℕ} (L : Submodule (𝓞 D.host.E) (Fin N → D.host
     exact hBs_mem _ (hA x hx)
   have hInt := _root_.Bl.general_b_fact_third_bis.isIntegral_of_preserves_span
     (L.restrictScalars ℤ) hL.1.restrictScalars hL.2.1 (Bs * A) hM
-  have h := _root_.Bl.general_b_fact_third_bis.isIntegral_trace_of_isIntegral D.host.φ₀ (Bs * A) hInt
+  have h := GlobalTheory.IntegralTrace.isIntegral_trace_of_isIntegral (Bs * A) hInt
   have htr : (Bs * A).trace = sE D A B := by
     simp only [Matrix.trace, Matrix.diag, Matrix.mul_apply, sE, hBs, Matrix.of_apply]
     rw [Finset.sum_comm]
