@@ -5,6 +5,7 @@ public import Mathlib.RingTheory.Jacobson.Ring
 public import Mathlib.RingTheory.KrullDimension.Basic
 import Mathlib.Tactic.TypeStar
 public import Mathlib.RingTheory.DedekindDomain.Basic
+public import GroundTheory.ArithmeticGeometry.ToricVarieties.Dimension
 
 @[expose] public section
 
@@ -17,39 +18,9 @@ theorem exists_ltSeries_lift {R S : Type*} [CommRing R] [CommRing S] [Algebra R 
     ∀ (n : ℕ) (p : LTSeries (PrimeSpectrum R)), p.length = n →
       ∃ q : LTSeries (PrimeSpectrum S), q.length = n ∧
         q.last.asIdeal.comap (algebraMap R S) = p.last.asIdeal := by
-  intro n
-  induction n with
-  | zero =>
-    intro p _
-    have hker : RingHom.ker (algebraMap R S) ≤ p.last.asIdeal := by
-      rw [(RingHom.injective_iff_ker_eq_bot _).mp hinj]
-      exact bot_le
-    obtain ⟨Q, -, hQ, hQc⟩ := Ideal.exists_ideal_over_prime_of_isIntegral p.last.asIdeal (⊥ : Ideal S)
-      (by rw [Ideal.under_def, ← RingHom.ker_eq_comap_bot]; exact hker)
-    exact ⟨RelSeries.singleton _ ⟨Q, hQ⟩, rfl, hQc⟩
-  | succ n ih =>
-    intro p hp
-    obtain ⟨q', hq'len, hq'c⟩ := ih p.eraseLast (by
-      first
-      | (show p.length - 1 = n; omega))
-    have hlt : p.eraseLast.last < p.last := p.eraseLast_last_rel_last (by omega)
-    obtain ⟨Q, hQle, hQ, hQc⟩ := Ideal.exists_ideal_over_prime_of_isIntegral_of_isPrime
-      p.last.asIdeal q'.last.asIdeal (by
-        calc
-          under R q'.last.asIdeal = p.eraseLast.last.asIdeal := hq'c
-          _ ≤ p.last.asIdeal := hlt.le)
-    have hlt' : q'.last.asIdeal < Q := by
-      refine lt_of_le_of_ne hQle fun h => hlt.ne ?_
-      ext1
-      calc
-        p.eraseLast.last.asIdeal = under R q'.last.asIdeal := hq'c.symm
-        _ = under R Q := congrArg (under R) h
-        _ = p.last.asIdeal := hQc
-    refine ⟨q'.snoc ⟨Q, hQ⟩ hlt', ?_, ?_⟩
-    · show q'.length + 1 = n + 1
-      rw [hq'len]
-    · rw [RelSeries.last_snoc]
-      exact hQc
+  intro n p hp
+  obtain ⟨q, hq, hlast⟩ := GroundTheory.Arith.Toric.exists_ltSeries_lift hinj p
+  exact ⟨q, hq.trans hp, congrArg PrimeSpectrum.asIdeal hlast⟩
 
 theorem le_ringKrullDim_of_isIntegral {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S)
     (hf : f.IsIntegral) (hinj : Function.Injective f) (n : ℕ)
