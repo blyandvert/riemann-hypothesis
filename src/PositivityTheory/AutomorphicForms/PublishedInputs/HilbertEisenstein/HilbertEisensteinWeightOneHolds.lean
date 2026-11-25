@@ -1,5 +1,6 @@
 module
 
+import PositivityTheory.AutomorphicForms.PublishedInputs.JacquetLanglands.TorusKernels.PfHFinC
 public import PositivityTheory.AutomorphicForms.PublishedInputs.HilbertEisenstein.SSmooth
 public import Development.AutomorphicArithmetic.AutomorphicVarieties.AutomorphicForms.RTwist
 public import Development.AutomorphicArithmetic.IntegralCasts.CapelliIdentities.Qminor
@@ -467,44 +468,6 @@ namespace UpperTheory.HilbertEisensteinWeightOne.LibOpenLevel
 
 variable {F : Type} [Field F] [NumberField F] [IsTotallyReal F]
 
-private theorem local_mem_principal_congruence {M : ℕ} (w : HeightOneSpectrum (𝓞 F)) (c : ℕ)
-    (hM : (M : w.adicCompletionIntegers F) ∈ IsLocalRing.maximalIdeal (w.adicCompletionIntegers F) ^ c)
-    {k : GL (Fin 2) (Af F)} (hk : k ∈ KLev F 2 M) : GeneralLinearGroup.map (pLoc F w) k ∈ K1 w c := by
-  obtain ⟨g, hg, rfl⟩ := hk
-  let p : Ohat F →+* w.adicCompletionIntegers F :=
-    ((pLoc F w).comp (Ohat F).subtype).codRestrict (w.adicCompletionIntegers F) fun x => GlobalFixedVectors.mem_Ohat.1 x.2 w
-  refine ⟨GeneralLinearGroup.map p g, ?_, Units.ext rfl⟩
-  have key : GeneralLinearGroup.map (n := Fin 2)
-      (Ideal.Quotient.mk (IsLocalRing.maximalIdeal (w.adicCompletionIntegers F) ^ c)) (GeneralLinearGroup.map p g) = 1 := by
-    let q := Ideal.quotientMap (I := Ideal.span {(M : ↥(Ohat F))}) (IsLocalRing.maximalIdeal (w.adicCompletionIntegers F) ^ c) p
-      ((Ideal.span_singleton_le_iff_mem _).2 (by simpa using hM))
-    have := congrArg (GeneralLinearGroup.map q) (MonoidHom.mem_ker.1 hg)
-    rw [map_one] at this
-    rw [← this]
-    rfl
-  exact Subgroup.mem_comap.2 (key ▸ one_mem _)
-
-private theorem exists_level (c : HeightOneSpectrum (𝓞 F) → ℕ) (hc : {w | c w ≠ 0}.Finite) :
-    ∃ M : ℕ, 1 ≤ M ∧ ∀ w : HeightOneSpectrum (𝓞 F),
-      (M : w.adicCompletionIntegers F) ∈ IsLocalRing.maximalIdeal (w.adicCompletionIntegers F) ^ c w := by
-  refine ⟨∏ w ∈ hc.toFinset, Ideal.absNorm w.asIdeal ^ c w, ?_, fun w => ?_⟩
-  · refine Nat.pos_of_ne_zero (Finset.prod_ne_zero_iff.2 fun w _ => pow_ne_zero _ ?_)
-    exact fun h => w.ne_bot (Ideal.absNorm_eq_zero_iff.1 h)
-  · by_cases h : c w = 0
-    · simp [h]
-    obtain ⟨m, hm⟩ := Finset.dvd_prod_of_mem (fun w : HeightOneSpectrum (𝓞 F) => Ideal.absNorm w.asIdeal ^ c w)
-      (hc.mem_toFinset.2 h)
-    rw [hm, Nat.cast_mul, Nat.cast_pow]
-    refine Ideal.mul_mem_right _ _ (Ideal.pow_mem_pow ?_ _)
-    have h1 := Ideal.absNorm_mem w.asIdeal
-    rw [← map_natCast (algebraMap (𝓞 F) (w.adicCompletionIntegers F))]
-    generalize (Ideal.absNorm w.asIdeal : 𝓞 F) = x at h1
-    refine (Valuation.mem_maximalIdeal_iff _ (Valued.v : Valuation (w.adicCompletion F) _)).2 ?_
-    have h2 : Valued.v (algebraMap (𝓞 F) (w.adicCompletion F) x) < 1 := by
-      rw [IsScalarTower.algebraMap_apply (𝓞 F) F (w.adicCompletion F)]
-      exact (HeightOneSpectrum.valuedAdicCompletion_eq_valuation' w _).trans_lt ((w.valuation_lt_one_iff_mem x).2 h1)
-    exact h2
-
 theorem finite_support {ω : HChar F} {c : HeightOneSpectrum (𝓞 F) → ℕ} (hH : Hyp ω c) :
     {w | c w ≠ 0}.Finite := by
   obtain ⟨m, hm, hω⟩ := isOfFinOrder_iff_pow_eq_one.1 hH.fin
@@ -526,8 +489,8 @@ theorem mem_Kc {c : HeightOneSpectrum (𝓞 F) → ℕ} {k : GL (Fin 2) (Af F)} 
   simp [Kc, Subgroup.mem_iInf]
 
 theorem isOpen_Kc {c : HeightOneSpectrum (𝓞 F) → ℕ} (hc : {w | c w ≠ 0}.Finite) : IsOpen (Kc F c : Set (GL (Fin 2) (Af F))) := by
-  obtain ⟨M, hM1, hM⟩ := exists_level c hc
-  exact Subgroup.isOpen_mono (fun k hk => mem_Kc.2 fun w => local_mem_principal_congruence w _ (hM w) hk) (isOpen_KLev hM1)
+  obtain ⟨M, hM1, hM⟩ := UpperTheory.Esk.HFinCAux.exists_level c hc
+  exact Subgroup.isOpen_mono (fun k hk => mem_Kc.2 fun w => UpperTheory.Esk.HFinCAux.local_mem_principal_congruence w _ (hM w) hk) (isOpen_KLev hM1)
 
 def stab (φ : UpperTheory.V.TR.Sm F 2) : Subgroup (GL (Fin 2) (Af F)) where
   carrier := {k | UpperTheory.V.TR.finRep F 2 k φ = φ}
