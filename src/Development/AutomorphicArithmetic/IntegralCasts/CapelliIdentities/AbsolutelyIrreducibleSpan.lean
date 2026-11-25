@@ -1,5 +1,6 @@
 module
 
+import Development.AutomorphicArithmetic.CyclotomicBounds.ClassNumberBounds.IrreducibleSpans.Burnside
 public import Mathlib.Data.Matrix.Mul
 public import Mathlib.RingTheory.LocalRing.ResidueField.Defs
 import Mathlib.RingTheory.Coalgebra.IsFrobenius
@@ -95,7 +96,7 @@ private theorem UpperTheory.Reformulated.B.AbsolutelyIrreducibleSpan.adjoin_top 
         obtain ⟨c, hc⟩ := hsc φ
         change Matrix.toLin' M (φ v) = φ (Matrix.toLin' M v)
         rw [hc, hc, map_smul] }
-  obtain ⟨r, hr⟩ := jacobson_density f
+  obtain ⟨r, hr⟩ := jacobson_density (R := A) f
     (Finset.univ.image fun i : n => (Pi.single i 1 : n → k))
   obtain ⟨r, N, hN, rfl⟩ := r
   have : M = N := by
@@ -106,58 +107,19 @@ private theorem UpperTheory.Reformulated.B.AbsolutelyIrreducibleSpan.adjoin_top 
     exact hr _ (Finset.mem_image_of_mem _ (Finset.mem_univ i))
   exact this ▸ hN
 
+theorem UpperTheory.Reformulated.B.AbsolutelyIrreducibleSpan.span_range
+    {k n G : Type} [Field k] [Fintype n] [DecidableEq n] [Monoid G]
+    (ρ : G →* Matrix n n k) (h : UpperTheory.Reformulated.B.AbsolutelyIrreducibleSpan.AbsIrr ρ) :
+    Submodule.span k (Set.range ρ) = ⊤ := by
+  rw [← Algebra.adjoin_eq_span_of_subset]
+  · exact (congrArg Subalgebra.toSubmodule (UpperTheory.Reformulated.B.AbsolutelyIrreducibleSpan.adjoin_top _ h)).trans rfl
+  · intro x hx
+    apply Submodule.subset_span
+    exact (Submonoid.closure_le (S := MonoidHom.mrange ρ)).mpr (fun _ hg => hg) hx
+
 theorem UpperTheory.Reformulated.B.AbsolutelyIrreducibleSpan.ontoSpan :
     UpperTheory.Reformulated.B.AbsolutelyIrreducibleSpan.StatOntoSpan := by
   intro O _ _ n _ _ G _ ρ h
-  have h1 := UpperTheory.Reformulated.B.AbsolutelyIrreducibleSpan.adjoin_top _ h
-  let π : Matrix n n O →+* Matrix n n (IsLocalRing.ResidueField O) :=
-    (IsLocalRing.residue O).mapMatrix
-  have h2 : Submodule.span (IsLocalRing.ResidueField O)
-      (Set.range fun g => π (ρ g)) = ⊤ := by
-    rw [← Algebra.adjoin_eq_span_of_subset]
-    · exact (congrArg Subalgebra.toSubmodule h1).trans rfl
-    · intro x hx
-      apply Submodule.subset_span
-      have : x ∈ MonoidHom.mrange (π.toMonoidHom.comp ρ) :=
-        (Submonoid.closure_le (S := MonoidHom.mrange (π.toMonoidHom.comp ρ))).mpr
-          (by rintro _ ⟨g, rfl⟩; exact ⟨g, rfl⟩) hx
-      exact this
-  have h3 : ∀ X : Matrix n n (IsLocalRing.ResidueField O),
-      ∃ Y ∈ Submodule.span O (Set.range (ρ : G → Matrix n n O)), π Y = X := by
-    intro X
-    have hX : X ∈ Submodule.span (IsLocalRing.ResidueField O)
-      (Set.range fun g => π (ρ g)) := h2 ▸ Submodule.mem_top
-    induction hX using Submodule.span_induction with
-    | mem x hx =>
-      obtain ⟨g, rfl⟩ := hx
-      exact ⟨ρ g, Submodule.subset_span ⟨g, rfl⟩, rfl⟩
-    | zero => exact ⟨0, Submodule.zero_mem _, map_zero _⟩
-    | add x y _ _ hx hy =>
-      obtain ⟨a, ha, rfl⟩ := hx
-      obtain ⟨b, hb, rfl⟩ := hy
-      exact ⟨a + b, Submodule.add_mem _ ha hb, map_add _ _ _⟩
-    | smul c x _ hx =>
-      obtain ⟨a, ha, rfl⟩ := hx
-      obtain ⟨d, rfl⟩ := IsLocalRing.residue_surjective c
-      refine ⟨d • a, Submodule.smul_mem _ _ ha, ?_⟩
-      ext i j
-      simp [π]
-  rw [eq_top_iff]
-  refine Submodule.le_of_le_smul_of_le_jacobson_bot (I := IsLocalRing.maximalIdeal O)
-    Module.Finite.fg_top (IsLocalRing.maximalIdeal_le_jacobson _) ?_
-  intro M _
-  obtain ⟨Y, hY, hYM⟩ := h3 (π M)
-  have h4 : M - Y ∈ IsLocalRing.maximalIdeal O • (⊤ : Submodule O (Matrix n n O)) := by
-    rw [Matrix.matrix_eq_sum_single (M - Y)]
-    refine Submodule.sum_mem _ fun i _ => Submodule.sum_mem _ fun j _ => ?_
-    have h5 : (M - Y) i j ∈ IsLocalRing.maximalIdeal O := by
-      rw [← IsLocalRing.residue_eq_zero_iff]
-      have h6 : π (M - Y) = 0 := by rw [map_sub, hYM, sub_self]
-      exact congrFun (congrFun h6 i) j
-    have h7 : Matrix.single i j ((M - Y) i j) = (M - Y) i j • Matrix.single i j (1 : O) := by
-      rw [Matrix.smul_single, smul_eq_mul, mul_one]
-    rw [h7]
-    exact Submodule.smul_mem_smul h5 Submodule.mem_top
-  have h8 : M = Y + (M - Y) := by abel
-  rw [h8]
-  exact Submodule.add_mem_sup hY h4
+  apply KStar.Schema.span_range_eq_top_of_residue ρ
+  exact UpperTheory.Reformulated.B.AbsolutelyIrreducibleSpan.span_range
+    ((IsLocalRing.residue O).mapMatrix.toMonoidHom.comp ρ) h

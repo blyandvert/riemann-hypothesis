@@ -1,5 +1,6 @@
 module
 
+public import Mathlib.RingTheory.LocalRing.ResidueField.Basic
 public import Mathlib.FieldTheory.IsAlgClosed.Basic
 public import Mathlib.RepresentationTheory.AlgebraRepresentation.Basic
 public import Mathlib.RingTheory.LocalRing.MaximalIdeal.Defs
@@ -47,7 +48,7 @@ end -- clump:auto
 -- ===== end clump member: Development.AutomorphicArithmetic.IntegralCasts.CapelliIdentities.BurnsideEnd =====
 
 -- ===== clump member: Development.AutomorphicArithmetic.CyclotomicBounds.ClassNumberBounds.IrreducibleSpans.Burnside =====
--- clump-header: {"m": "Development.AutomorphicArithmetic.CyclotomicBounds.ClassNumberBounds.IrreducibleSpans.Burnside", "h": "module\n\npublic import Mathlib.FieldTheory.IsAlgClosed.Basic\npublic import Mathlib.RingTheory.LocalRing.MaximalIdeal.Defs\npublic import Development.AutomorphicArithmetic.IntegralCasts.CapelliIdentities.BurnsideEnd\nimport Mathlib.Algebra.Order.Floor.Extended\nimport Mathlib.Algebra.Order.Floor.Semifield\nimport Mathlib.Algebra.Order.Interval.Basic\nimport Mathlib.Analysis.Complex.UpperHalfPlane.Basic\nimport Mathlib.Analysis.Normed.Algebra.GelfandRadius\nimport Mathlib.Analysis.SpecialFunctions.Bernstein\nimport Mathlib.Analysis.SpecialFunctions.Gamma.Basic\nimport Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp\nimport Mathlib.Combinatorics.Enumerative.DyckWord\nimport Mathlib.Combinatorics.SimpleGraph.Triangle.Removal\nimport Mathlib.Data.NNRat.Floor\nimport Mathlib.Data.Nat.Choose.Multinomial\nimport Mathlib.Geometry.Euclidean.Volume.Basic\nimport Mathlib.NumberTheory.Chebyshev\nimport Mathlib.NumberTheory.Height.NumberField\nimport Mathlib.NumberTheory.Height.Projectivization\nimport Mathlib.NumberTheory.LucasLehmer\nimport Mathlib.NumberTheory.SelbergSieve\nimport Mathlib.RingTheory.Coalgebra.IsFrobenius\nimport Mathlib.RingTheory.Henselian\nimport Mathlib.RingTheory.HopfAlgebra.Basic\nimport Mathlib.RingTheory.Radical.NatInt\nimport Mathlib.RingTheory.RegularLocalRing.Defs\nimport Mathlib.RingTheory.SimpleRing.Principal\nimport Mathlib.Tactic.Echelon.Zsqrtd\nimport Mathlib.Tactic.Inclusion.Extension.Core.Core\nimport Mathlib.Tactic.Inclusion.Extension.Interval.BinarySplit\nimport Mathlib.Tactic.Inclusion.Extension.IntervalDyadicReal.Exp\nimport Mathlib.Tactic.Inclusion.Extension.IntervalDyadicReal.Hypotheses\nimport Mathlib.Tactic.Inclusion.Extension.IntervalInt.Basic\nimport Mathlib.Tactic.Inclusion.Extension.IntervalInt.Hypotheses\nimport Mathlib.Tactic.NormNum.Irrational\nimport Mathlib.Tactic.NormNum.IsCoprime\nimport Mathlib.Tactic.NormNum.IsSquare\nimport Mathlib.Tactic.NormNum.LegendreSymbol\nimport Mathlib.Tactic.NormNum.ModEq\nimport Mathlib.Tactic.NormNum.NatFib\nimport Mathlib.Tactic.NormNum.NatLog\nimport Mathlib.Tactic.NormNum.NatSqrt\nimport Mathlib.Tactic.NormNum.Ordinal\nimport Mathlib.Tactic.NormNum.Parity\nimport Mathlib.Tactic.NormNum.Prime\nimport Mathlib.Tactic.NormNum.RealSqrt\nimport Mathlib.Tactic.TypeStar\nimport Mathlib.Topology.Sheaves.Init\n\n"}
+-- clump-header: {"m": "Development.AutomorphicArithmetic.CyclotomicBounds.ClassNumberBounds.IrreducibleSpans.Burnside", "h": "module\n\npublic import Mathlib.RingTheory.LocalRing.ResidueField.Basic\npublic import Mathlib.FieldTheory.IsAlgClosed.Basic\npublic import Mathlib.RingTheory.LocalRing.MaximalIdeal.Defs\npublic import Development.AutomorphicArithmetic.IntegralCasts.CapelliIdentities.BurnsideEnd\nimport Mathlib.Algebra.Order.Floor.Extended\nimport Mathlib.Algebra.Order.Floor.Semifield\nimport Mathlib.Algebra.Order.Interval.Basic\nimport Mathlib.Analysis.Complex.UpperHalfPlane.Basic\nimport Mathlib.Analysis.Normed.Algebra.GelfandRadius\nimport Mathlib.Analysis.SpecialFunctions.Bernstein\nimport Mathlib.Analysis.SpecialFunctions.Gamma.Basic\nimport Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp\nimport Mathlib.Combinatorics.Enumerative.DyckWord\nimport Mathlib.Combinatorics.SimpleGraph.Triangle.Removal\nimport Mathlib.Data.NNRat.Floor\nimport Mathlib.Data.Nat.Choose.Multinomial\nimport Mathlib.Geometry.Euclidean.Volume.Basic\nimport Mathlib.NumberTheory.Chebyshev\nimport Mathlib.NumberTheory.Height.NumberField\nimport Mathlib.NumberTheory.Height.Projectivization\nimport Mathlib.NumberTheory.LucasLehmer\nimport Mathlib.NumberTheory.SelbergSieve\nimport Mathlib.RingTheory.Coalgebra.IsFrobenius\nimport Mathlib.RingTheory.Henselian\nimport Mathlib.RingTheory.HopfAlgebra.Basic\nimport Mathlib.RingTheory.Radical.NatInt\nimport Mathlib.RingTheory.RegularLocalRing.Defs\nimport Mathlib.RingTheory.SimpleRing.Principal\nimport Mathlib.Tactic.Echelon.Zsqrtd\nimport Mathlib.Tactic.Inclusion.Extension.Core.Core\nimport Mathlib.Tactic.Inclusion.Extension.Interval.BinarySplit\nimport Mathlib.Tactic.Inclusion.Extension.IntervalDyadicReal.Exp\nimport Mathlib.Tactic.Inclusion.Extension.IntervalDyadicReal.Hypotheses\nimport Mathlib.Tactic.Inclusion.Extension.IntervalInt.Basic\nimport Mathlib.Tactic.Inclusion.Extension.IntervalInt.Hypotheses\nimport Mathlib.Tactic.NormNum.Irrational\nimport Mathlib.Tactic.NormNum.IsCoprime\nimport Mathlib.Tactic.NormNum.IsSquare\nimport Mathlib.Tactic.NormNum.LegendreSymbol\nimport Mathlib.Tactic.NormNum.ModEq\nimport Mathlib.Tactic.NormNum.NatFib\nimport Mathlib.Tactic.NormNum.NatLog\nimport Mathlib.Tactic.NormNum.NatSqrt\nimport Mathlib.Tactic.NormNum.Ordinal\nimport Mathlib.Tactic.NormNum.Parity\nimport Mathlib.Tactic.NormNum.Prime\nimport Mathlib.Tactic.NormNum.RealSqrt\nimport Mathlib.Tactic.TypeStar\nimport Mathlib.Topology.Sheaves.Init\n\n"}
 section -- clump:auto
 @[expose] public section
 
@@ -78,16 +79,6 @@ theorem span_eq_top_of_irreducible {K : Type*} [Field K] [IsAlgClosed K] (ρ : G
   have : m' = m := e.injective h'
   rw [← this]; exact hm'
 
-private noncomputable def entryBasis (n : Type*) [Fintype n] (R : Type*) [CommRing R] :
-    Module.Basis (n × n) R (Matrix n n R) :=
-  Module.Basis.ofEquivFun
-    { toFun := fun m p => m p.1 p.2
-      invFun := fun f => Matrix.of fun i j => f (i, j)
-      map_add' := fun _ _ => rfl
-      map_smul' := fun _ _ => rfl
-      left_inv := fun _ => rfl
-      right_inv := fun _ => rfl }
-
 theorem span_eq_top_of_residue {A K : Type*} [CommRing A] [IsLocalRing A] [Field K]
     (π : A →+* K) (hπ : RingHom.ker π = IsLocalRing.maximalIdeal A) (s : Set (Matrix n n A))
     (hs : Submodule.span K ((fun m : Matrix n n A => m.map π) '' s) = ⊤) :
@@ -97,31 +88,39 @@ theorem span_eq_top_of_residue {A K : Type*} [CommRing A] [IsLocalRing A] [Field
   rw [hs] at hsp
   let B : Module.Basis b K (Matrix n n K) := Module.Basis.mk hli (by
     rw [Subtype.range_coe, hsp])
-  let B' := B.reindex (B.indexEquiv (entryBasis n K))
+  let B' := B.reindex (B.indexEquiv (Matrix.stdBasis K n n))
   have hmem : ∀ p, ∃ w ∈ s, w.map π = B' p := fun p => by
     apply hb
     simp only [B', B, Module.Basis.reindex_apply, Module.Basis.mk_apply]
     exact Subtype.property _
   choose w hw hwπ using hmem
-  have hu : IsUnit ((entryBasis n K).det B') := (entryBasis n K).isUnit_det B'
-  have hdet : π ((entryBasis n A).det w) = (entryBasis n K).det B' := by
+  have hu : IsUnit ((Matrix.stdBasis K n n).det B') := (Matrix.stdBasis K n n).isUnit_det B'
+  have hdet : π ((Matrix.stdBasis A n n).det w) = (Matrix.stdBasis K n n).det B' := by
     rw [Module.Basis.det_apply, Module.Basis.det_apply, RingHom.map_det]
     congr 1
     ext p q
     rw [RingHom.mapMatrix_apply, Matrix.map_apply, Module.Basis.toMatrix_apply,
       Module.Basis.toMatrix_apply, ← hwπ]
     rfl
-  have hu' : IsUnit ((entryBasis n A).det w) := by
+  have hu' : IsUnit ((Matrix.stdBasis A n n).det w) := by
     by_contra hn
-    have : (entryBasis n A).det w ∈ RingHom.ker π := by
+    have : (Matrix.stdBasis A n n).det w ∈ RingHom.ker π := by
       rw [hπ]; exact hn
     rw [RingHom.mem_ker, hdet] at this
     exact hu.ne_zero this
-  have h2 := ((entryBasis n A).is_basis_iff_det.mpr hu').2
+  have h2 := ((Matrix.stdBasis A n n).is_basis_iff_det.mpr hu').2
   rw [eq_top_iff, ← h2]
   apply Submodule.span_mono
   rintro _ ⟨p, rfl⟩
   exact hw p
+
+theorem span_range_eq_top_of_residue {O ι : Type*} [CommRing O] [IsLocalRing O]
+    (f : ι → Matrix n n O)
+    (h : Submodule.span (IsLocalRing.ResidueField O)
+      (Set.range fun i => (f i).map (IsLocalRing.residue O)) = ⊤) :
+    Submodule.span O (Set.range f) = ⊤ := by
+  apply span_eq_top_of_residue (IsLocalRing.residue O) IsLocalRing.ker_residue
+  rwa [← Set.range_comp]
 
 end KStar.Schema
 end -- clump:auto
