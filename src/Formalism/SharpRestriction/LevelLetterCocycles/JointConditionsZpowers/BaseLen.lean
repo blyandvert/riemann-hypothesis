@@ -52,9 +52,7 @@ theorem length_le_of_span {M : Type} [AddCommGroup M] [Module O M] {n : ℕ} (m 
 private theorem length_le_length_ker_add_length {N P : Type} [AddCommGroup N] [Module O N]
     [AddCommGroup P] [Module O P] (f : N →ₗ[O] P) :
     Module.length O N ≤ Module.length O ↥(LinearMap.ker f) + Module.length O P := by
-  have hs : Function.Surjective f.rangeRestrict := by
-    rintro ⟨_, x, rfl⟩
-    exact ⟨x, rfl⟩
+  have hs : Function.Surjective f.rangeRestrict := f.surjective_rangeRestrict
   have hex : Function.Exact (LinearMap.ker f).subtype f.rangeRestrict := by
     first
       | exact LinearMap.exact_iff.2 (by rw [LinearMap.ker_rangeRestrict, Submodule.range_subtype])
@@ -67,20 +65,8 @@ theorem length_torsionBy_pow_le {M : Type} [AddCommGroup M] [Module O M] (a : O)
     Module.length O ↥(Submodule.torsionBy O M (a ^ c)) ≤ (c : ℕ∞) * Module.length O ↥(Submodule.torsionBy O M a) := by
   induction c with
   | zero =>
-    have hs : Subsingleton ↥(Submodule.torsionBy O M (a ^ 0)) := by
-      refine ⟨fun x y => Subtype.ext ?_⟩
-      have h1 : ∀ z : M, a ^ 0 • z = 0 → z = 0 := fun z hz => by
-        rwa [pow_zero, one_smul] at hz
-      have hx := x.2
-      have hy := y.2
-      rw [Submodule.mem_torsionBy_iff] at hx hy
-      rw [h1 _ hx, h1 _ hy]
-    have h0 : Module.length O ↥(Submodule.torsionBy O M (a ^ 0)) = 0 := by
-      first
-        | exact Module.length_eq_zero_iff.2 hs
-    rw [h0]
-    first
-      | exact zero_le
+    rw [pow_zero, Submodule.torsionBy_one, Module.length_eq_zero]
+    exact zero_le
   | succ c ih =>
     have hpow : a * a ^ c = a ^ (c + 1) := by ring
     let f : ↥(Submodule.torsionBy O M (a ^ (c + 1))) →ₗ[O] ↥(Submodule.torsionBy O M a) :=
