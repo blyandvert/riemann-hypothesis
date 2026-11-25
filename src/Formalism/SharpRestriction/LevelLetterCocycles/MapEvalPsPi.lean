@@ -242,11 +242,8 @@ theorem invariants_const (hl2 : l ≠ 2) (s : ℕ) (u : ℤ_[l]) (hu : (u - 1).v
       intro ξ hξ
       rw [pow_succ ub n]
       exact hmul _ _ ih hS_ub ξ hξ
-  have hcopl : Nat.Coprime l (l - 1) := by
-    rw [Nat.Prime.coprime_iff_not_dvd hl]
-    intro h
-    have := Nat.le_of_dvd (by omega) h
-    omega
+  have hcopl : Nat.Coprime l (l - 1) :=
+    (Nat.coprime_self_sub_right hl.pos).2 (Nat.coprime_one_right l)
   have hw : orderOf (ub ^ (l - 1)) = l ^ s := by
     have hcop : (orderOf ub).Coprime (l - 1) := by
       rw [hubord]
@@ -256,38 +253,12 @@ theorem invariants_const (hl2 : l ≠ 2) (s : ℕ) (u : ℤ_[l]) (hu : (u - 1).v
   haveI hcyc : IsCyclic (ZMod (l ^ (s + 1)))ˣ := by
     first
     | exact ZMod.isCyclic_units_of_prime_pow l hl hl2 (s + 1)
-  have hwpow : (ub ^ (l - 1)) ^ (l ^ s) = 1 := by
-    rw [← hw]
-    exact pow_orderOf_eq_one _
   have hcount : ∀ b : (ZMod (l ^ (s + 1)))ˣ, b ^ (l ^ s) = 1 → ∃ k : ℕ, (ub ^ (l - 1)) ^ k = b := by
     intro b hb
-    have hsub : (Finset.range (l ^ s)).image (fun k => (ub ^ (l - 1)) ^ k) ⊆
-        Finset.univ.filter (fun x : (ZMod (l ^ (s + 1)))ˣ => x ^ (l ^ s) = 1) := by
-      intro x hx
-      rw [Finset.mem_image] at hx
-      obtain ⟨k, -, rfl⟩ := hx
-      rw [Finset.mem_filter]
-      refine ⟨Finset.mem_univ _, ?_⟩
-      rw [pow_right_comm (ub ^ (l - 1)) k (l ^ s), hwpow, one_pow]
-    have hcard : ((Finset.range (l ^ s)).image (fun k => (ub ^ (l - 1)) ^ k)).card = l ^ s := by
-      rw [Finset.card_image_of_injOn, Finset.card_range]
-      intro i hi j hj hij
-      have hi' : i < orderOf (ub ^ (l - 1)) := by
-        rw [hw]
-        simpa using hi
-      have hj' : j < orderOf (ub ^ (l - 1)) := by
-        rw [hw]
-        simpa using hj
-      first
-      | exact pow_injOn_Iio_orderOf hi' hj' hij
-    have hle := IsCyclic.card_pow_eq_one_le (α := (ZMod (l ^ (s + 1)))ˣ) (pow_pos hl.pos s)
-    have heq := Finset.eq_of_subset_of_card_le hsub (by rw [hcard]; exact hle)
-    have hbmem : b ∈ Finset.univ.filter (fun x : (ZMod (l ^ (s + 1)))ˣ => x ^ (l ^ s) = 1) := by
-      rw [Finset.mem_filter]
-      exact ⟨Finset.mem_univ _, hb⟩
-    rw [← heq, Finset.mem_image] at hbmem
-    obtain ⟨k, -, hk⟩ := hbmem
-    exact ⟨k, hk⟩
+    have hle : Subgroup.zpowers b ≤ Subgroup.zpowers (ub ^ (l - 1)) := by
+      rw [IsCyclic.subgroup_le_iff_card_dvd, Nat.card_zpowers, Nat.card_zpowers, hw]
+      exact orderOf_dvd_of_pow_eq_one hb
+    exact (Submonoid.mem_powers_iff _ _).1 (mem_powers_iff_mem_zpowers.2 (hle (Subgroup.mem_zpowers b)))
   have hcardG : Fintype.card (ZMod (l ^ (s + 1)))ˣ = l ^ s * (l - 1) := by
     rw [ZMod.card_units_eq_totient, Nat.totient_prime_pow_succ hl]
   have key : ∀ a : (ZMod (l ^ (s + 1)))ˣ, ∀ ξ ∈ primitiveRoots (l ^ (s + 1)) LL,
