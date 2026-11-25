@@ -1,5 +1,6 @@
 module
 
+public import GroundTheory.ArithmeticGeometry.ToricVarieties.Dimension
 public import Mathlib.FieldTheory.RatFunc.Basic
 public import Mathlib.RingTheory.DedekindDomain.Basic
 public import Mathlib.RingTheory.SimpleRing.Principal
@@ -64,19 +65,8 @@ open Order
 
 theorem ringKrullDim_le_of_isIntegral {A R : Type*} [CommRing A] [CommRing R] [Algebra A R]
     [Algebra.IsIntegral A R] (h : Function.Injective (algebraMap A R)) :
-    ringKrullDim A ≤ ringKrullDim R := by
-  rcases isEmpty_or_nonempty (PrimeSpectrum A) with hA | hA
-  · rw [ringKrullDim, Order.krullDim_eq_bot]
-    exact bot_le
-  rw [ringKrullDim, Order.krullDim_eq_iSup_length]
-  rw [WithBot.coe_iSup (OrderTop.bddAbove _)]
-  refine iSup_le fun l => ?_
-  obtain ⟨P, -, hP, hPl⟩ := Ideal.exists_ideal_over_prime_of_isIntegral l.head.asIdeal (⊥ : Ideal R)
-    (by rw [Ideal.under_def, ← RingHom.ker_eq_comap_bot, (RingHom.injective_iff_ker_eq_bot _).1 h]; exact bot_le)
-  have : P.LiesOver l.head.asIdeal := ⟨hPl.symm⟩
-  obtain ⟨L, hL, -, -⟩ := Ideal.exists_ltSeries_of_hasGoingUp l P
-  rw [← hL]
-  exact LTSeries.length_le_krullDim L
+    ringKrullDim A ≤ ringKrullDim R :=
+  GroundTheory.Arith.Toric.ringKrullDim_le_of_isIntegral_of_injective h
 
 theorem exists_finite_inj_polynomial (k B : Type) [Field k] [CommRing B] [IsDedekindDomain B]
     [Algebra k B] [Algebra.FiniteType k B] (hB : ¬ IsField B) :
