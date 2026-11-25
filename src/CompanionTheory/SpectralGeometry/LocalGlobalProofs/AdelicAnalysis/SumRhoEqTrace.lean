@@ -1,6 +1,7 @@
 module
 
 public import CompanionTheory.SpectralGeometry.CountingDefinitions.AdelicEulerProducts.CountData
+public import CompanionTheory.SpectralGeometry.LocalGlobalProofs.AdelicAnalysis.ThetaFunctionModularity
 import Mathlib.RingTheory.PiTensorProduct
 import Mathlib.RingTheory.SimpleRing.Principal
 
@@ -69,30 +70,8 @@ def gM [DecidableEq (InfinitePlace F)] (ρ : InfinitePlace F → (F →+* ℝ))
 theorem sum_rho_eq_trace {ρ : InfinitePlace F → (F →+* ℝ)} (hT : IsTotallyReal F)
     (hρ : ∀ w x, ((ρ w x : ℝ) : ℂ) = w.embedding x) (c : F) :
     ∑ w, ρ w c = ((Algebra.trace ℚ F c : ℚ) : ℝ) := by
-  have h1 := trace_eq_sum_embeddings (K := ℚ) (L := F) ℂ (x := c)
-  have hb : Function.Bijective
-      (fun w : InfinitePlace F => (w.embedding).toRatAlgHom) := by
-    constructor
-    · intro w v h
-      have : w.embedding = v.embedding := by
-        ext x
-        exact DFunLike.congr_fun h x
-      rw [← InfinitePlace.mk_embedding w, ← InfinitePlace.mk_embedding v, this]
-    · intro σ
-      refine ⟨InfinitePlace.mk σ.toRingHom, ?_⟩
-      have hr : (InfinitePlace.mk σ.toRingHom).IsReal := hT.isReal _
-      have he := InfinitePlace.embedding_mk_eq_of_isReal (InfinitePlace.isReal_mk_iff.mp hr)
-      ext x
-      show ((InfinitePlace.mk σ.toRingHom).embedding) x = σ x
-      rw [he]
-      rfl
-  have h2 : ∑ σ : F →ₐ[ℚ] ℂ, σ c = ∑ w : InfinitePlace F, w.embedding c := by
-    rw [← (Equiv.ofBijective _ hb).sum_comp]
-    rfl
   apply Complex.ofReal_injective
-  rw [Complex.ofReal_sum]
-  simp only [hρ]
-  rw [← h2, ← h1]
-  simp
+  rw [Complex.ofReal_sum, Complex.ofReal_ratCast]
+  exact (ThetaUD.trace_eq_sum hT ρ hρ c).symm
 
 end GlobalTheory.CompanionTheory.SW.ThW
