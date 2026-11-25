@@ -8,6 +8,7 @@ import Mathlib.RingTheory.RegularLocalRing.Defs
 import Mathlib.Tactic.TypeStar
 public import ReciprocityTheory.SemistableReduction.DetSubtypeCompAssociatedProd
 public import Mathlib.LinearAlgebra.FreeModule.Finite.Quotient
+public import GroundTheory.GlobalFields.SemilocalAlgebras.NormTrace
 
 @[expose] public section
 
@@ -20,34 +21,8 @@ open Module
 theorem det_blockDiagonal' {ι R : Type*} [Fintype ι] [DecidableEq ι] [CommRing R]
     {κ : ι → Type*} [∀ c, Fintype (κ c)] [∀ c, DecidableEq (κ c)]
     (M : ∀ c, Matrix (κ c) (κ c) R) :
-    (Matrix.blockDiagonal' M).det = ∏ c, (M c).det := by
-  classical
-
-  have hblk : ∀ c, (Matrix.toSquareBlock (Matrix.blockDiagonal' M) Sigma.fst c).det =
-      (M c).det := by
-    intro c
-    let e : κ c ≃ {s : (Σ c, κ c) // s.1 = c} :=
-      { toFun := fun k => ⟨⟨c, k⟩, rfl⟩
-        invFun := fun s => cast (congrArg κ s.2) s.1.2
-        left_inv := fun k => rfl
-        right_inv := by
-          rintro ⟨⟨a, k⟩, rfl⟩
-          rfl }
-    rw [← Matrix.det_submatrix_equiv_self e]
-    congr 1
-    ext k k'
-    show Matrix.blockDiagonal' M ⟨c, k⟩ ⟨c, k'⟩ = M c k k'
-    first
-      | exact Matrix.blockDiagonal'_apply_eq M c k k'
-  letI : LinearOrder ι := LinearOrder.lift' (Fintype.equivFin ι) (Fintype.equivFin ι).injective
-  first
-    | rw [(Matrix.blockTriangular_blockDiagonal' M).det]
-  rw [Finset.prod_congr rfl (fun c _ => hblk c)]
-  refine Finset.prod_subset (Finset.subset_univ _) ?_
-  intro c _ hc
-  haveI : IsEmpty (κ c) :=
-    ⟨fun k => hc (Finset.mem_image.2 ⟨⟨c, k⟩, Finset.mem_univ _, rfl⟩)⟩
-  exact Matrix.det_isEmpty
+    (Matrix.blockDiagonal' M).det = ∏ c, (M c).det :=
+  GroundTheory.Global.SemiLocal.det_blockDiagonal' M
 
 theorem gram_mul {F L : Type*} [Field F] [Field L] [Algebra F L] {κ : Type*} [Fintype κ]
     [DecidableEq κ] (a : Basis κ F L) (h : L) :
