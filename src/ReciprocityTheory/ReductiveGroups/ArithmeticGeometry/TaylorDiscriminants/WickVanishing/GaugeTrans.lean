@@ -48,55 +48,8 @@ theorem gt_coeff_sum_pow (n : ℕ) (e : Fin 2 →₀ ℕ) :
 theorem exp_subst_add_two_vars :
     PowerSeries.subst ((X 0 : MvPowerSeries (Fin 2) A) + X 1) (PowerSeries.exp A) =
       PowerSeries.subst (X 0 : MvPowerSeries (Fin 2) A) (PowerSeries.exp A) *
-        PowerSeries.subst (X 1 : MvPowerSeries (Fin 2) A) (PowerSeries.exp A) := by
-  ext e
-  have ha : PowerSeries.HasSubst ((X 0 : MvPowerSeries (Fin 2) A) + X 1) :=
-    PowerSeries.HasSubst.of_constantCoeff_zero (by simp)
-  rw [PowerSeries.coeff_subst ha, MvPowerSeries.coeff_mul]
-  simp_rw [gt_coeff_sum_pow A, gt_coeff_expX A, PowerSeries.coeff_exp]
-  rw [finsum_eq_single _ (e 0 + e 1)]
-  · rw [ite_eq_left rfl]
-    rw [Finset.sum_eq_single (single 0 (e 0), single 1 (e 1))]
-    · simp only [Finsupp.single_eq_same, ite_true]
-      rw [smul_eq_mul, ← map_natCast (algebraMap ℚ A), ← map_mul, ← map_mul]
-      congr 1
-      have f0 : ((e 0 + e 1).factorial : ℚ) ≠ 0 := by positivity
-      have f1 : ((e 0).factorial : ℚ) ≠ 0 := by positivity
-      have f2 : ((e 1).factorial : ℚ) ≠ 0 := by positivity
-      rw [Nat.cast_choose ℚ (Nat.le_add_right (e 0) (e 1)), Nat.add_sub_cancel_left]
-      field_simp
-    · intro p hp hne
-      have hp' : p.1 + p.2 = e := by simpa using hp
-      by_cases h1 : p.1 = single 0 (p.1 0)
-      · by_cases h2 : p.2 = single 1 (p.2 1)
-        · exfalso
-          have a1 : p.2 0 = 0 := by
-            rw [h2]
-            simp
-          have a2 : p.1 1 = 0 := by
-            rw [h1]
-            simp
-          have c0 := DFunLike.congr_fun hp' 0
-          have c1 := DFunLike.congr_fun hp' 1
-          simp only [Finsupp.add_apply] at c0 c1
-          apply hne
-          refine Prod.ext ?_ ?_
-          · show p.1 = single 0 (e 0)
-            rw [h1]
-            congr 1
-            omega
-          · show p.2 = single 1 (e 1)
-            rw [h2]
-            congr 1
-            omega
-        · rw [ite_eq_right h2, mul_zero]
-      · rw [ite_eq_right h1, zero_mul]
-    · intro hnot
-      exfalso
-      apply hnot
-      simpa using (gt_single_add e).symm
-  · intro d hd
-    rw [ite_eq_right (fun h => hd h.symm), smul_zero]
+        PowerSeries.subst (X 1 : MvPowerSeries (Fin 2) A) (PowerSeries.exp A) :=
+  exp_two A
 
 end Exp2
 
