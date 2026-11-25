@@ -6,6 +6,7 @@ public import Mathlib.RingTheory.Henselian
 public import Mathlib.RingTheory.WittVector.DiscreteValuationRing
 public import Mathlib.RingTheory.WittVector.Frobenius
 public import Mathlib.RingTheory.WittVector.Teichmuller
+public import Formalism.SharedLemmas.PrecompleteFinite
 import Mathlib.RingTheory.AdicCompletion.Functoriality
 import Mathlib.RingTheory.WittVector.Complete
 
@@ -83,23 +84,8 @@ theorem sig_period : sig p n ^ n = 1 := by
   exact DFunLike.congr_fun h y
 
 theorem precomplete_pi {R : Type*} [CommRing R] (π : R) [IsPrecomplete (Ideal.span {π}) R] (d : ℕ) :
-    IsPrecomplete (Ideal.span {π}) (Fin d → R) := by
-  refine ⟨fun f hf => ?_⟩
-  have hcomp : ∀ i, ∃ L : R, ∀ k,
-      f k i ≡ L [SMOD (Ideal.span {π} ^ k • ⊤ : Submodule R R)] := fun i =>
-    IsPrecomplete.prec inferInstance fun {a b} hab => by
-      have hle : Submodule.map (LinearMap.proj i)
-          (Ideal.span {π} ^ a • ⊤ : Submodule R (Fin d → R)) ≤ Ideal.span {π} ^ a • ⊤ := by
-        rw [Submodule.map_smul'']
-        exact Submodule.smul_mono le_rfl le_top
-      exact SModEq.mono hle ((hf hab).map (LinearMap.proj i))
-  choose L hL using hcomp
-  refine ⟨L, fun k => SModEq.sub_mem.mpr ?_⟩
-  have hsum : f k - L = ∑ i, (f k i - L i) • Pi.single i (1 : R) := by
-    ext j; simp [Pi.single_apply]
-  rw [hsum]
-  refine Submodule.sum_mem _ fun i _ => Submodule.smul_mem_smul ?_ Submodule.mem_top
-  simpa [SModEq.sub_mem, Ideal.smul_eq_mul, Ideal.mul_top] using hL i k
+    IsPrecomplete (Ideal.span {π}) (Fin d → R) :=
+  Formalism.SharedLemmas.isPrecomplete_fin_pi _ d
 
 omit [NeZero n] in
 theorem jW_coeff (x : WQ p n) (k : ℕ) :
