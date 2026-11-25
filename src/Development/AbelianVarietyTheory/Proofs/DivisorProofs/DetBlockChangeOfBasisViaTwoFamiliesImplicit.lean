@@ -5,6 +5,7 @@ public import Mathlib.LinearAlgebra.Dimension.OrzechProperty
 public import Mathlib.LinearAlgebra.Basis.Basic
 public import Mathlib.LinearAlgebra.Dimension.Finrank
 public import Mathlib.LinearAlgebra.Matrix.Block
+public import GroundTheory.GlobalFields.SemilocalAlgebras.NormTrace
 
 @[expose] public section
 
@@ -15,29 +16,8 @@ open Matrix
 theorem det_blockDiagonal'_eq_prod {ι R : Type} [Fintype ι] [DecidableEq ι] [CommRing R]
     {κ : ι → Type} [∀ c, Fintype (κ c)] [∀ c, DecidableEq (κ c)]
     (M : ∀ c, Matrix (κ c) (κ c) R) :
-    (Matrix.blockDiagonal' M).det = ∏ c, (M c).det := by
-  classical
-  set f := Fintype.equivFin ι
-  let b : (Σ c, κ c) → Fin (Fintype.card ι) := fun p => f p.1
-  have hb : (Matrix.blockDiagonal' M).BlockTriangular b := by
-    rintro ⟨c, i⟩ ⟨c', j⟩ h
-    exact Matrix.blockDiagonal'_apply_ne M i j (fun hc => by subst hc; exact lt_irrefl _ h)
-  rw [hb.det_fintype]
-  symm
-  refine Fintype.prod_equiv f _ _ (fun c => ?_)
-  let e : κ c ≃ {p : (Σ c, κ c) // b p = f c} :=
-    { toFun := fun i => ⟨⟨c, i⟩, rfl⟩
-      invFun := fun p => cast (congrArg κ (f.injective p.2)) p.1.2
-      left_inv := fun i => rfl
-      right_inv := by
-        rintro ⟨⟨c', i⟩, h⟩
-        have hc : c' = c := f.injective h
-        subst hc
-        rfl }
-  rw [← Matrix.det_submatrix_equiv_self e]
-  congr 1
-  ext i j
-  exact (Matrix.blockDiagonal'_apply_eq M c i j).symm
+    (Matrix.blockDiagonal' M).det = ∏ c, (M c).det :=
+  GroundTheory.Global.SemiLocal.det_blockDiagonal' M
 
 theorem det_block_change (F : Type) [Field F] {N : Type} [AddCommGroup N] [Module F N]
     {κ : Type} [Fintype κ]
