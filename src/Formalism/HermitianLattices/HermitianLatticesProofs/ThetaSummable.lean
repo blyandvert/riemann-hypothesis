@@ -128,29 +128,31 @@ lemma thetaSummable_sq_le (v : ι → ℝ) :
         rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
     _ ≤ (Fintype.card ι + 1 : ℝ) * ‖v‖ ^ 2 := by nlinarith [sq_nonneg ‖v‖]
 
+lemma thetaSummable_castform (G : Matrix ι ι ℚ) (w : ι → ℚ) :
+    (fun i => (w i : ℝ)) ⬝ᵥ ((G + Gᵀ).map (Rat.cast : ℚ → ℝ) *ᵥ fun i => (w i : ℝ)) =
+      2 * ((w ⬝ᵥ (G *ᵥ w) : ℚ) : ℝ) := by
+  have h1 : ((G + Gᵀ).map (Rat.cast : ℚ → ℝ)) = G.map (Rat.cast : ℚ → ℝ) + (G.map (Rat.cast : ℚ → ℝ))ᵀ := by
+    ext i j
+    simp
+  have h2 : ∀ M : Matrix ι ι ℝ, ∀ v : ι → ℝ, v ⬝ᵥ (Mᵀ *ᵥ v) = v ⬝ᵥ (M *ᵥ v) := by
+    intro M v
+    simp only [dotProduct, Matrix.mulVec, Matrix.transpose_apply, Finset.mul_sum]
+    rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+    ring
+  have h3 : (((w ⬝ᵥ (G *ᵥ w)) : ℚ) : ℝ) =
+      (fun i => (w i : ℝ)) ⬝ᵥ (G.map (Rat.cast : ℚ → ℝ) *ᵥ fun i => (w i : ℝ)) := by
+    simp only [dotProduct, Matrix.mulVec, Matrix.map_apply]
+    push_cast
+    try rfl
+  rw [h1, Matrix.add_mulVec, dotProduct_add, h2, ← h3]
+  ring
+
 lemma thetaSummable_coercive (G : Matrix ι ι ℚ)
     (hG : ∀ w : ι → ℚ, w ≠ 0 → 0 < w ⬝ᵥ (G *ᵥ w)) :
     ∃ l : ℝ, 0 < l ∧ ∀ v : ι → ℝ, l * ‖v‖ ^ 2 ≤ v ⬝ᵥ ((G + Gᵀ).map (Rat.cast : ℚ → ℝ) *ᵥ v) := by
   set M : Matrix ι ι ℝ := (G + Gᵀ).map (Rat.cast : ℚ → ℝ) with hM
-  have hcf : ∀ w : ι → ℚ, (fun i => (w i : ℝ)) ⬝ᵥ ((G + Gᵀ).map (Rat.cast : ℚ → ℝ) *ᵥ fun i => (w i : ℝ)) =
-      2 * ((w ⬝ᵥ (G *ᵥ w) : ℚ) : ℝ) := by
-    intro w
-    have h1 : ((G + Gᵀ).map (Rat.cast : ℚ → ℝ)) = G.map (Rat.cast : ℚ → ℝ) + (G.map (Rat.cast : ℚ → ℝ))ᵀ := by
-      ext i j
-      simp
-    have h2 : ∀ M : Matrix ι ι ℝ, ∀ v : ι → ℝ, v ⬝ᵥ (Mᵀ *ᵥ v) = v ⬝ᵥ (M *ᵥ v) := by
-      intro M v
-      simp only [dotProduct, Matrix.mulVec, Matrix.transpose_apply, Finset.mul_sum]
-      rw [Finset.sum_comm]
-      refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
-      ring
-    have h3 : (((w ⬝ᵥ (G *ᵥ w)) : ℚ) : ℝ) =
-        (fun i => (w i : ℝ)) ⬝ᵥ (G.map (Rat.cast : ℚ → ℝ) *ᵥ fun i => (w i : ℝ)) := by
-      simp only [dotProduct, Matrix.mulVec, Matrix.map_apply]
-      push_cast
-      try rfl
-    rw [h1, Matrix.add_mulVec, dotProduct_add, h2, ← h3]
-    ring
+  have hcf := thetaSummable_castform G
   have hcont : Continuous fun v : ι → ℝ => v ⬝ᵥ (M *ᵥ v) := by
     first
     | fun_prop
@@ -264,26 +266,6 @@ lemma thetaSummable_ratpos (G : Matrix ι ι ℚ)
   rw [hcw, Matrix.mulVec_smul, dotProduct_smul, smul_dotProduct, smul_eq_mul, smul_eq_mul] at hpos
   by_contra! hneg
   nlinarith [mul_pos hdpos hdpos]
-
-lemma thetaSummable_castform (G : Matrix ι ι ℚ) (w : ι → ℚ) :
-    (fun i => (w i : ℝ)) ⬝ᵥ ((G + Gᵀ).map (Rat.cast : ℚ → ℝ) *ᵥ fun i => (w i : ℝ)) =
-      2 * ((w ⬝ᵥ (G *ᵥ w) : ℚ) : ℝ) := by
-  have h1 : ((G + Gᵀ).map (Rat.cast : ℚ → ℝ)) = G.map (Rat.cast : ℚ → ℝ) + (G.map (Rat.cast : ℚ → ℝ))ᵀ := by
-    ext i j
-    simp
-  have h2 : ∀ M : Matrix ι ι ℝ, ∀ v : ι → ℝ, v ⬝ᵥ (Mᵀ *ᵥ v) = v ⬝ᵥ (M *ᵥ v) := by
-    intro M v
-    simp only [dotProduct, Matrix.mulVec, Matrix.transpose_apply, Finset.mul_sum]
-    rw [Finset.sum_comm]
-    refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
-    ring
-  have h3 : (((w ⬝ᵥ (G *ᵥ w)) : ℚ) : ℝ) =
-      (fun i => (w i : ℝ)) ⬝ᵥ (G.map (Rat.cast : ℚ → ℝ) *ᵥ fun i => (w i : ℝ)) := by
-    simp only [dotProduct, Matrix.mulVec, Matrix.map_apply]
-    push_cast
-    try rfl
-  rw [h1, Matrix.add_mulVec, dotProduct_add, h2, ← h3]
-  ring
 
 lemma thetaSummable_coercive_rat (G : Matrix ι ι ℚ)
     (hG : ∀ w : ι → ℚ, w ≠ 0 → 0 < w ⬝ᵥ (G *ᵥ w)) :
