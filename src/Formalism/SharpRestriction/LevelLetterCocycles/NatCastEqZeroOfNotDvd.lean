@@ -24,31 +24,16 @@ theorem intCast_nonneg (m : ℤ) : 0 ≤ v (m : K) := by
   · rw [Int.cast_natCast]; exact natCast_nonneg v n
   · rw [Int.cast_neg, Int.cast_natCast, AddValuation.map_neg]; exact natCast_nonneg v n
 
-private theorem withTop_zero_lt_one : (0 : WithTop ℚ) < 1 := by
-  exact_mod_cast (zero_lt_one : (0 : ℚ) < 1)
-
 theorem natCast_eq_zero_of_not_dvd {p : ℕ} (hp : p.Prime) (hv : v (p : K) = 1) {m : ℕ}
     (hm : ¬ p ∣ m) : v (m : K) = 0 := by
-  have hcop : Nat.Coprime p m := (Nat.Prime.coprime_iff_not_dvd hp).2 hm
-  have h1 : ((Nat.gcd p m : ℕ) : ℤ) = (p : ℤ) * Nat.gcdA p m + (m : ℤ) * Nat.gcdB p m :=
-    Nat.gcd_eq_gcd_ab p m
-  rw [hcop.gcd_eq_one] at h1
-  have hK : (1 : K) = (p : K) * (Nat.gcdA p m : K) + (m : K) * (Nat.gcdB p m : K) := by
-    have h2 := congrArg (fun z : ℤ => (z : K)) h1
-    push_cast at h2
-    exact h2
-  have h0 := natCast_nonneg v m
-  by_contra hne
-  have hpos : 0 < v (m : K) := lt_of_le_of_ne h0 (Ne.symm hne)
-  have h3 : 0 < v ((p : K) * (Nat.gcdA p m : K)) := by
-    rw [AddValuation.map_mul, hv]
-    exact lt_of_lt_of_le withTop_zero_lt_one (le_add_of_nonneg_right (intCast_nonneg v _))
-  have h4 : 0 < v ((m : K) * (Nat.gcdB p m : K)) := by
-    rw [AddValuation.map_mul]
-    exact lt_of_lt_of_le hpos (le_add_of_nonneg_right (intCast_nonneg v _))
-  have h5 := v.map_add ((p : K) * (Nat.gcdA p m : K)) ((m : K) * (Nat.gcdB p m : K))
-  rw [← hK, AddValuation.map_one] at h5
-  exact absurd h5 (not_le.2 (lt_min h3 h4))
+  obtain ⟨a, b, hab⟩ := Nat.isCoprime_iff_coprime.2 ((Nat.Prime.coprime_iff_not_dvd hp).2 hm)
+  have hK : (a : K) * p + (b : K) * m = 1 := by exact_mod_cast congrArg (Int.cast : ℤ → K) hab
+  refine (natCast_nonneg v m).antisymm' (not_lt.1 fun hpos => ?_)
+  have h5 := v.map_add ((a : K) * p) ((b : K) * m)
+  rw [hK, AddValuation.map_one, AddValuation.map_mul, AddValuation.map_mul, hv] at h5
+  exact absurd h5 (not_le.2 (lt_min
+    (lt_of_lt_of_le zero_lt_one (le_add_of_nonneg_left (intCast_nonneg v a)))
+    (lt_of_lt_of_le hpos (le_add_of_nonneg_left (intCast_nonneg v b)))))
 
 theorem pow_nonneg' {x : K} (hx : 0 ≤ v x) (k : ℕ) : 0 ≤ v (x ^ k) := by
   rw [AddValuation.map_pow]
@@ -84,9 +69,6 @@ theorem val_pow_sub_one_coprime {p : ℕ} (hp : p.Prime) (hv : v (p : K) = 1) {x
     rw [geom_expand, v.map_add_eq_of_lt_left hlt, hm0]
   rw [← geom_sum_mul x m, AddValuation.map_mul, hS, zero_add]
 
-private theorem withTop_one_lt_one_add_one : (1 : WithTop ℚ) < 1 + 1 := by
-  exact_mod_cast (by norm_num : (1 : ℚ) < 1 + 1)
-
 private theorem one_le_v_natCast_of_dvd {p : ℕ} (hv : v (p : K) = 1) {n : ℕ} (h : p ∣ n) :
     1 ≤ v (n : K) := by
   obtain ⟨c, rfl⟩ := h
@@ -95,7 +77,7 @@ private theorem one_le_v_natCast_of_dvd {p : ℕ} (hv : v (p : K) = 1) {n : ℕ}
 
 theorem val_pow_p_sub_one {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) (hv : v (p : K) = 1) {x : K}
     (hy : 1 ≤ v (x - 1)) : v (x ^ p - 1) = v (x - 1) + 1 := by
-  have hx : 0 ≤ v x := (v_x_zero v (lt_of_lt_of_le withTop_zero_lt_one hy)).ge
+  have hx : 0 ≤ v x := (v_x_zero v (lt_of_lt_of_le zero_lt_one hy)).ge
   have hid : ∑ j ∈ Finset.range p, ∑ i ∈ Finset.range j, x ^ i =
       (∑ j ∈ Finset.range p, (j : K)) + (x - 1) *
         ∑ j ∈ Finset.range p, ∑ i ∈ Finset.range j, ∑ l ∈ Finset.range i, x ^ l := by
@@ -121,13 +103,10 @@ theorem val_pow_p_sub_one {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) (hv : v (p : 
   have hlt : v (p : K) < v ((x - 1) * ((∑ j ∈ Finset.range p, (j : K)) + (x - 1) *
       ∑ j ∈ Finset.range p, ∑ i ∈ Finset.range j, ∑ l ∈ Finset.range i, x ^ l)) := by
     rw [hv, AddValuation.map_mul]
-    exact lt_of_lt_of_le withTop_one_lt_one_add_one (add_le_add hy hinner)
+    exact lt_of_lt_of_le (by norm_num : (1 : WithTop ℚ) < 1 + 1) (add_le_add hy hinner)
   have hsum : v (∑ j ∈ Finset.range p, x ^ j) = 1 := by
     rw [geom_expand, hid, v.map_add_eq_of_lt_left hlt, hv]
   rw [← geom_sum_mul x p, AddValuation.map_mul, hsum, add_comm]
-
-private theorem withTop_rat_natCast_nonneg (k : ℕ) : (0 : WithTop ℚ) ≤ (k : WithTop ℚ) := by
-  exact_mod_cast (Nat.cast_nonneg k : (0 : ℚ) ≤ k)
 
 theorem val_pow_pk_sub_one {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) (hv : v (p : K) = 1) {x : K}
     (hy : 1 ≤ v (x - 1)) (k : ℕ) : v (x ^ (p ^ k) - 1) = v (x - 1) + (k : WithTop ℚ) := by
@@ -136,7 +115,7 @@ theorem val_pow_pk_sub_one {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) (hv : v (p :
   | succ k ih =>
     have hk : 1 ≤ v (x ^ (p ^ k) - 1) := by
       rw [ih]
-      exact le_trans hy (le_add_of_nonneg_right (withTop_rat_natCast_nonneg k))
+      exact le_trans hy (le_add_of_nonneg_right (Nat.cast_nonneg' k))
     rw [pow_succ p k, pow_mul x (p ^ k) p, val_pow_p_sub_one v hp hp2 hv hk, ih,
       Nat.cast_succ, add_assoc]
 
@@ -153,8 +132,8 @@ theorem val_pow_sub_one_nat {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) (hv : v (p 
   have hz := val_pow_pk_sub_one v hp hp2 hv hy (padicValNat p m)
   have hzpos : 0 < v (x ^ (p ^ padicValNat p m) - 1) := by
     rw [hz]
-    exact lt_of_lt_of_le withTop_zero_lt_one
-      (le_trans hy (le_add_of_nonneg_right (withTop_rat_natCast_nonneg _)))
+    exact lt_of_lt_of_le zero_lt_one
+      (le_trans hy (le_add_of_nonneg_right (Nat.cast_nonneg' _)))
   rw [key, val_pow_sub_one_coprime v hp hv hzpos hpn, hz]
 
 theorem val_zpow_sub_one {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) (hv : v (p : K) = 1) {x : K}
@@ -171,7 +150,7 @@ theorem val_zpow_sub_one {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) (hv : v (p : K
       rintro rfl
       exact hm (by simp)
     have hpv : padicValInt p (-(n : ℤ)) = padicValNat p n := by simp [padicValInt, ← Nat.padicValNat_def]
-    have hvx : v x = 0 := v_x_zero v (lt_of_lt_of_le withTop_zero_lt_one hy)
+    have hvx : v x = 0 := v_x_zero v (lt_of_lt_of_le zero_lt_one hy)
     have hx0 : x ≠ 0 := by
       rintro rfl
       rw [AddValuation.map_zero] at hvx
@@ -179,10 +158,7 @@ theorem val_zpow_sub_one {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) (hv : v (p : K
     have hxn : x ^ n ≠ 0 := pow_ne_zero n hx0
     have hvxn : v (x ^ n) = 0 := by
       rw [AddValuation.map_pow, hvx, smul_zero]
-    have hinv : v ((x ^ n)⁻¹) = 0 := by
-      have h1 : v ((x ^ n)⁻¹) + v (x ^ n) = 0 := by
-        rw [← AddValuation.map_mul, inv_mul_cancel₀ hxn, AddValuation.map_one]
-      rwa [hvxn, add_zero] at h1
+    have hinv : v ((x ^ n)⁻¹) = 0 := by rw [AddValuation.map_inv, hvxn, neg_zero]
     have hrw : x ^ (-(n : ℤ)) - 1 = -((x ^ n)⁻¹ * (x ^ n - 1)) := by
       rw [zpow_neg, zpow_natCast, mul_sub, inv_mul_cancel₀ hxn, mul_one]
       ring
