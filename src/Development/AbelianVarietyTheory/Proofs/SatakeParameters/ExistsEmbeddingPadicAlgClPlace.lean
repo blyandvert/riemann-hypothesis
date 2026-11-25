@@ -1,5 +1,6 @@
 module
 
+import Formalism.SharedLemmas.NormLeOneOfIntegral
 public import Mathlib.Analysis.Normed.Field.Basic
 public import Mathlib.Topology.MetricSpace.Ultra.Basic
 public import Mathlib.Analysis.Normed.Group.Ultra
@@ -44,26 +45,8 @@ open NumberField IsDedekindDomain
 namespace GlobalTheory
 
 theorem norm_le_one_of_isIntegral_int {K : Type*} [NormedField K] [IsUltrametricDist K]
-    {z : K} (hz : IsIntegral ℤ z) : ‖z‖ ≤ 1 := by
-  obtain ⟨p, hm, hp⟩ := hz
-  by_contra! hlt
-  set n := p.natDegree
-  rw [Polynomial.eval₂_eq_sum_range, Finset.sum_range_succ, Polynomial.coeff_natDegree,
-    hm.leadingCoeff, map_one, one_mul] at hp
-  set S := ∑ i ∈ Finset.range n, (algebraMap ℤ K) (p.coeff i) * z ^ i
-  have hS : ‖S‖ < ‖z‖ ^ n := by
-    refine _root_.GlobalTheory.NormSumLt.norm_sum_lt _ _ (pow_pos (by linarith) n) ?_
-    intro i hi
-    rw [norm_mul, norm_pow]
-    have h1 : ‖(algebraMap ℤ K) (p.coeff i)‖ ≤ 1 := by
-      rw [eq_intCast]; exact IsUltrametricDist.norm_intCast_le_one K _
-    calc ‖(algebraMap ℤ K) (p.coeff i)‖ * ‖z‖ ^ i ≤ 1 * ‖z‖ ^ i :=
-          mul_le_mul_of_nonneg_right h1 (pow_nonneg (norm_nonneg _) _)
-      _ = ‖z‖ ^ i := one_mul _
-      _ < ‖z‖ ^ n := pow_lt_pow_right₀ hlt (Finset.mem_range.mp hi)
-  have h2 : z ^ n = -S := by linear_combination hp
-  have h3 : ‖z‖ ^ n = ‖S‖ := by rw [← norm_pow, h2, norm_neg]
-  linarith
+    {z : K} (hz : IsIntegral ℤ z) : ‖z‖ ≤ 1 :=
+  Formalism.SharedLemmas.norm_le_one_of_isIntegral hz
 
 theorem exists_embedding_padicAlgCl_place (E : Type) [Field E] [NumberField E] (l : ℕ)
     [Fact l.Prime] : ∃ (τ : E →+* PadicAlgCl l) (w : HeightOneSpectrum (𝓞 E)),
