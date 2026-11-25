@@ -3,6 +3,7 @@ module
 import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.EqZeroOfForallMemFilV
 public import Formalism.WeaklyAdmissibleFiltrations.Statement
 public import Mathlib.RingTheory.PowerSeries.Basic
+public import Formalism.SharpRestriction.LevelLetterCocycles.LevelKernelDetection.CvZeroTerm
 import Mathlib.RingTheory.Coalgebra.IsFrobenius
 import Mathlib.RingTheory.Etale.Weakly
 import Mathlib.RingTheory.Henselian
@@ -32,20 +33,11 @@ def smulS (g : PowerSeries LL) (f : ℤ → V) : ℤ → V :=
   fun k => ∑ᶠ j : ℕ, PowerSeries.coeff j g • f (k - j)
 
 theorem smulS_eq_sum {m : ℤ} {f : ℤ → V} (hf : LB m f) (g : PowerSeries LL) (k : ℤ) (N : ℕ)
-    (hN : k - m < N) : smulS g f k = ∑ j ∈ Finset.range N, PowerSeries.coeff j g • f (k - j) := by
-  unfold smulS
-  apply finsum_eq_sum_of_support_subset
-  intro j hj
-  rw [Function.mem_support] at hj
-  rw [Finset.coe_range, Set.mem_Iio]
-  by_contra! hjN
-  apply hj
-  rw [hf (k - j) (by omega), smul_zero]
+    (hN : k - m < N) : smulS g f k = ∑ j ∈ Finset.range N, PowerSeries.coeff j g • f (k - j) :=
+  Ln03.Pf.ConvolutionAlt.cv_eq_sum g f m hf k N hN
 
-theorem LB_smulS {m : ℤ} {f : ℤ → V} (hf : LB m f) (g : PowerSeries LL) : LB m (smulS g f) := by
-  intro k hk
-  unfold smulS
-  exact finsum_eq_zero_of_forall_eq_zero fun j => by rw [hf _ (by omega), smul_zero]
+theorem LB_smulS {m : ℤ} {f : ℤ → V} (hf : LB m f) (g : PowerSeries LL) : LB m (smulS g f) :=
+  Ln03.Pf.ConvolutionAlt.cv_low g f m hf
 
 theorem smulS_X_pow {m : ℤ} {f : ℤ → V} (hf : LB m f) (K : ℕ) :
     smulS ((PowerSeries.X : PowerSeries LL) ^ K) f = fun k => f (k - K) := by
@@ -57,23 +49,8 @@ theorem smulS_X_pow {m : ℤ} {f : ℤ → V} (hf : LB m f) (K : ℕ) :
     rw [PowerSeries.coeff_X_pow, ite_eq_right hj, zero_smul]
 
 theorem smulS_mul {m : ℤ} {f : ℤ → V} (hf : LB m f) (g h : PowerSeries LL) :
-    smulS (g * h) f = smulS g (smulS h f) := by
-  funext k
-  obtain ⟨N, hN⟩ : ∃ N : ℕ, k - m < N := ⟨(k - m).toNat + 1, by omega⟩
-  rw [smulS_eq_sum hf _ k N hN, smulS_eq_sum ((LB_smulS hf) h) _ k N hN]
-  have h1 : ∀ n : ℕ, PowerSeries.coeff n (g * h) • f (k - n) =
-      ∑ a ∈ Finset.Ico 0 (n + 1), (PowerSeries.coeff a g * PowerSeries.coeff (n - a) h) • f (k - n) := by
-    intro n
-    rw [PowerSeries.coeff_mul, Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk, Finset.sum_smul,
-      Finset.range_eq_Ico]
-  simp_rw [h1]
-  rw [Finset.range_eq_Ico, ← Finset.sum_Ico_Ico_comm]
-  refine Finset.sum_congr rfl fun a ha => ?_
-  have haN : a < N := (Finset.mem_Ico.mp ha).2
-  rw [smulS_eq_sum hf h (k - a) (N - a) (by push_cast [haN.le]; omega),
-    Finset.sum_Ico_eq_sum_range, Finset.smul_sum]
-  refine Finset.sum_congr rfl fun b _ => ?_
-  rw [mul_smul, Nat.add_sub_cancel_left, Nat.cast_add, sub_add_eq_sub_sub]
+    smulS (g * h) f = smulS g (smulS h f) :=
+  funext (Ln03.Pf.ConvolutionAlt.cv_mul g h f m hf)
 
 end Ser
 
