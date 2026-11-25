@@ -3,6 +3,7 @@ module
 public import Mathlib.Algebra.MvPolynomial.Monad
 public import Mathlib.Analysis.Complex.Exponential
 public import Mathlib.LinearAlgebra.Matrix.ConjTranspose
+public import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsPolyEntriesConjLeftRightMul
 import Mathlib.Analysis.Complex.UpperHalfPlane.Basic
 import Mathlib.Analysis.Normed.Algebra.GelfandRadius
 import Mathlib.Analysis.SpecialFunctions.Bernstein
@@ -32,20 +33,8 @@ def entVar (g : Matrix (Fin n) (Fin n) ℂ) : (Fin n × Fin n) ⊕ (Fin n × Fin
 abbrev EntIdx (n : ℕ) := (Fin n × Fin n) ⊕ (Fin n × Fin n)
 
 theorem totalDegree_bind_le_of_linear {ι : Type*} (f : ι → MvPolynomial ι ℂ) (hf : ∀ i, (f i).totalDegree ≤ 1)
-    (Q : MvPolynomial ι ℂ) : (bind₁ f Q).totalDegree ≤ Q.totalDegree := by
-  classical
-  conv_lhs => rw [Q.as_sum]
-
-  rw [map_sum]
-  refine (totalDegree_finsetSum _ _).trans (Finset.sup_le fun m hm => ?_)
-  rw [bind₁_monomial]
-  refine (totalDegree_mul _ _).trans ?_
-  rw [totalDegree_C, zero_add]
-  refine (totalDegree_finsetProd _ _).trans ?_
-  refine le_trans ?_ (le_totalDegree hm)
-  refine Finset.sum_le_sum fun i _ => ?_
-  refine (totalDegree_pow _ _).trans ?_
-  simpa using Nat.mul_le_mul_left (m i) (hf i)
+    (Q : MvPolynomial ι ℂ) : (bind₁ f Q).totalDegree ≤ Q.totalDegree :=
+  GlobalTheory.PolyEntryMul.totalDegree_bind₁_le_of_le_one f hf Q
 
 def trF (g : Matrix (Fin n) (Fin n) ℂ) : EntIdx n → MvPolynomial (EntIdx n) ℂ :=
   Sum.elim (fun x => ∑ l, C (g x.1 l) * X (Sum.inl (l, x.2)))
